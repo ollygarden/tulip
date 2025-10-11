@@ -10,6 +10,9 @@
 # - Official Tulip binaries and container images
 # - The exact component versions specified in this manifest
 #
+# Need a component that's not listed here? Reach out to us at https://ollygarden.com/tulip
+# We're always open to discussing additions that benefit the community.
+#
 # This manifest defines the components included in the Tulip distribution.
 dist:
   module: github.com/ollygarden/tulip/tulip
@@ -17,9 +20,11 @@ dist:
   description: OllyGarden Tulip - Enterprise-supported OpenTelemetry Collector distribution
   version: 0.137.0
   output_path: ./_build
+  build_tags: "grpcnotrace"
 
 # Extensions: Authentication, health checks, profiling
 extensions:
+  - gomod: go.opentelemetry.io/collector/extension/zpagesextension v0.137.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckextension v0.137.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/pprofextension v0.137.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/basicauthextension v0.137.0
@@ -29,14 +34,33 @@ extensions:
 
 # Receivers: Ingesting telemetry data
 receivers:
-  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.137.0  # OTLP gRPC and HTTP receiver
+  - gomod: go.opentelemetry.io/collector/receiver/nopreceiver v0.137.0
+  - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.137.0
 
 # Exporters: Sending telemetry to backends
 exporters:
-  - gomod: go.opentelemetry.io/collector/exporter/nopexporter v0.137.0       # No-op exporter for testing
-  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.137.0      # OTLP gRPC exporter
-  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.137.0  # OTLP HTTP exporter
+  - gomod: go.opentelemetry.io/collector/exporter/debugexporter v0.137.0
+  - gomod: go.opentelemetry.io/collector/exporter/nopexporter v0.137.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlpexporter v0.137.0
+  - gomod: go.opentelemetry.io/collector/exporter/otlphttpexporter v0.137.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/fileexporter v0.137.0
 
-# Processors: Data transformation and enrichment (add as needed)
+# Processors: Data transformation and enrichment
+processors:
+  - gomod: go.opentelemetry.io/collector/processor/batchprocessor v0.137.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/attributesprocessor v0.137.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourceprocessor v0.137.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/spanprocessor v0.137.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/probabilisticsamplerprocessor v0.137.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v0.137.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.137.0
 
-# Connectors: Pipeline routing (add as needed)
+# Connectors: Pipeline routing
+connectors:
+  - gomod: go.opentelemetry.io/collector/connector/forwardconnector v0.137.0
+
+# Providers: Configuration sources
+providers:
+  - gomod: go.opentelemetry.io/collector/confmap/provider/envprovider v1.43.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/fileprovider v1.43.0
+  - gomod: go.opentelemetry.io/collector/confmap/provider/yamlprovider v1.43.0
