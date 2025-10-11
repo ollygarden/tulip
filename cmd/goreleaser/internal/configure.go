@@ -70,7 +70,6 @@ func Build(dist string) config.Build {
 		},
 		Goos:   []string{"darwin", "linux"},
 		Goarch: Architectures,
-		Goarm:  ArmVersions,
 	}
 }
 
