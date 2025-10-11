@@ -1,0 +1,103 @@
+partial:
+  by: target
+version: 2
+project_name: tulip
+builds:
+  - id: tulip
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    goarm:
+      - "7"
+    dir: _build
+    binary: tulip
+    ldflags:
+      - -s
+      - -w
+    flags:
+      - -trimpath
+    env:
+      - CGO_ENABLED=0
+archives:
+  - id: tulip
+    name_template: '{{ .Binary }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}{{ if .Mips }}_{{ .Mips }}{{ end }}'
+    builds:
+      - tulip
+nfpms:
+  - package_name: tulip
+    contents:
+      - src: tulip.service
+        dst: /lib/systemd/system/tulip.service
+      - src: tulip.conf
+        dst: /etc/tulip/tulip.conf
+        type: config|noreplace
+      - src: config.yaml
+        dst: /etc/tulip/config.yaml
+        type: config|noreplace
+    scripts:
+      preinstall: preinstall.sh
+      postinstall: postinstall.sh
+      preremove: preremove.sh
+    id: tulip
+    formats:
+      - apk
+      - deb
+      - rpm
+    maintainer: OllyGarden <support@ollygarden.com>
+    description: OllyGarden Tulip is a commercially supported distribution of the OpenTelemetry Collector - tulip
+    license: Apache 2.0
+    builds:
+      - tulip
+checksum:
+  name_template: '{{ .ProjectName }}_tulip_checksums.txt'
+dockers:
+  - goos: linux
+    goarch: amd64
+    dockerfile: Dockerfile
+    image_templates:
+      - ghcr.io/ollygarden/tulip/tulip:{{ .Version }}-amd64
+      - ghcr.io/ollygarden/tulip/tulip:latest-amd64
+    extra_files:
+      - config.yaml
+      - entrypoint.sh
+    build_flag_templates:
+      - --pull
+      - --platform=linux/amd64
+      - --label=org.opencontainers.image.created={{.Date}}
+      - --label=org.opencontainers.image.name={{.ProjectName}}
+      - --label=org.opencontainers.image.revision={{.FullCommit}}
+      - --label=org.opencontainers.image.version={{.Version}}
+      - --label=org.opencontainers.image.source={{.GitURL}}
+      - --label=org.opencontainers.image.licenses=Apache-2.0
+    use: buildx
+  - goos: linux
+    goarch: arm64
+    dockerfile: Dockerfile
+    image_templates:
+      - ghcr.io/ollygarden/tulip/tulip:{{ .Version }}-arm64
+      - ghcr.io/ollygarden/tulip/tulip:latest-arm64
+    extra_files:
+      - config.yaml
+      - entrypoint.sh
+    build_flag_templates:
+      - --pull
+      - --platform=linux/arm64
+      - --label=org.opencontainers.image.created={{.Date}}
+      - --label=org.opencontainers.image.name={{.ProjectName}}
+      - --label=org.opencontainers.image.revision={{.FullCommit}}
+      - --label=org.opencontainers.image.version={{.Version}}
+      - --label=org.opencontainers.image.source={{.GitURL}}
+      - --label=org.opencontainers.image.licenses=Apache-2.0
+    use: buildx
+docker_manifests:
+  - name_template: ghcr.io/ollygarden/tulip/tulip:{{ .Version }}
+    image_templates:
+      - ghcr.io/ollygarden/tulip/tulip:{{ .Version }}-amd64
+      - ghcr.io/ollygarden/tulip/tulip:{{ .Version }}-arm64
+  - name_template: ghcr.io/ollygarden/tulip/tulip:latest
+    image_templates:
+      - ghcr.io/ollygarden/tulip/tulip:latest-amd64
+      - ghcr.io/ollygarden/tulip/tulip:latest-arm64

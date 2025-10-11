@@ -1,0 +1,69 @@
+name: Reusable GoReleaser CI workflow
+
+on:
+  workflow_call:
+    inputs:
+      distribution:
+        required: true
+        type: string
+      goos:
+        required: true
+        type: string
+      goarch:
+        required: true
+        type: string
+
+env:
+  # renovate: datasource=github-releases packageName=goreleaser/goreleaser-pro
+  GORELEASER_PRO_VERSION: v2.12.5
+
+jobs:
+  check-goreleaser:
+    strategy:
+      matrix:
+        GOOS: ${{ fromJSON( inputs.goos) }}
+        GOARCH: ${{ fromJSON( inputs.goarch) }}
+        exclude:
+          - GOOS: darwin
+            GOARCH: "386"
+          - GOOS: darwin
+            GOARCH: s390x
+          - GOOS: darwin
+            GOARCH: arm
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          fetch-depth: 0
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
+        with:
+          platforms: arm64,ppc64le,linux/arm/v7,s390x
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+
+      - name: Setup Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version: '1.25'
+          check-latest: true
+
+      - name: Generate the sources
+        run: make generate-sources
+
+      - name: Run GoReleaser for ${{ inputs.distribution }}
+        uses: goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a # v6.4.0
+        with:
+          distribution: goreleaser-pro
+          version: ${{ env.GORELEASER_PRO_VERSION }}
+          workdir: distributions/${{ inputs.distribution }}
+          args: --snapshot --clean --timeout 2h --split
+        env:
+          GOOS: ${{ matrix.GOOS }}
+          GOARCH: ${{ matrix.GOARCH }}
+          GOARM: "7"
+          GORELEASER_KEY: ${{ secrets.GORELEASER_KEY }}

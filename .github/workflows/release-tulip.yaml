@@ -1,0 +1,16 @@
+name: Release tulip
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Release tulip
+    uses: ./.github/workflows/base-release.yaml
+    with:
+      distribution: tulip
+      goos: '[ "linux", "darwin" ]'
+      goarch: '[ "386", "amd64", "arm64", "ppc64le", "arm", "s390x" ]'
+    secrets: inherit
+    permissions: write-all
