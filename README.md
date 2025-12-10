@@ -179,8 +179,10 @@ For systemd deployments, configuration is managed via:
 Tulip is available as a container image:
 
 ```bash
-docker pull cr.olly.garden/ollygarden/tulip/tulip:v25.11
+docker pull cr.olly.garden/ollygarden/tulip/tulip:v25.11.0
 ```
+
+And other images versions can be found in the [GitHub Container Registry](hthttps://github.com/ollygarden/tulip/pkgs/container/tulip%2Ftulip).
 
 ### System Packages
 
