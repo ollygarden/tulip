@@ -1,3 +1,4 @@
+# This file is synched with the README.md file, to make the quickstart easier. So, if changes were made here, please update the README.md file.
 extensions:
   health_check: {}
   pprof: {}
