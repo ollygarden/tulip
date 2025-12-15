@@ -2,7 +2,7 @@ module github.com/ollygarden/tulip
 
 go 1.22
 
-toolchain go1.25.2
+toolchain go1.25.5
 
 require (
 	github.com/goreleaser/goreleaser-pro/v2 v2.12.5
