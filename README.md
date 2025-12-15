@@ -206,36 +206,6 @@ Tulip uses GitHub Actions for continuous integration and release automation. Wor
 - Linux: amd64, arm64
 - macOS: amd64, arm64
 
-## Quickstart: See Tulip Running in 1 Minute
-
-If you just want to see Tulip receive telemetry and write it to a file, you don’t need to understand the whole build and test setup.
-
-Clone this repository and run the following commands:
-
-### 1. Build Tulip
-
-From the repository root:
-
-`make build`
-
-This builds the Tulip binary at: `distributions/tulip/_build/tulip`
-
-### 2. Start Tulip with the demo config
-
-`./distributions/tulip/_build/tulip --config=distributions/tulip/tulip-test.yaml`
-
-### 3. Generate some traces
-
-In another terminal, use `telemetrygen` to send traces to Tulip:
-
-`go run github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetrygen@latest traces --otlp-endpoint localhost:4317 --otlp-insecure --rate 1 --duration 5s`
-
-### 4. Inspect the processed output
-
-Tulip’s demo config writes traces to a local JSON file:
-
-`cat test-output.json` You should see attributes labeled with the service.namespace `tulip-test` and the environment `demo`.
-
 ## Development
 
 ### Build Output
