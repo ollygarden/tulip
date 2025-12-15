@@ -10,7 +10,7 @@ receivers:
         endpoint: localhost:4317
 
 exporters:
-  # exporting the processed data to a file, to turn the debug process easier
+  # exporting the processed data to a file, to make the debug process easier
   file:
     path: ./test-output.json
     format: json
