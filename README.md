@@ -182,7 +182,7 @@ Tulip is available as a container image:
 docker pull cr.olly.garden/ollygarden/tulip/tulip:v25.11.0
 ```
 
-And other images versions can be found in the [GitHub Container Registry](hthttps://github.com/ollygarden/tulip/pkgs/container/tulip%2Ftulip).
+And other images versions can be found in the [GitHub Container Registry](https://github.com/ollygarden/tulip/pkgs/container/tulip%2Ftulip).
 
 ### System Packages
 
