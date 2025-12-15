@@ -1,3 +1,4 @@
+# This file is synched with the README.md file, to make the quickstart easier. So, if changes were made here, please update the README.md file.
 extensions:
   health_check: {}
   pprof: {}
@@ -5,19 +6,34 @@ extensions:
 receivers:
   otlp:
     protocols:
-      grpc: {}
+      grpc:
+        endpoint: localhost:4317
 
 exporters:
-  nop:
-  otlp:
-    endpoint: otlp.example.com:4317
-  otlphttp:
-    endpoint: https://otlp.example.com/otlp
+  # exporting the processed data to a file, to make the debug process easier
+  file:
+    path: ./test-output.json
+    format: json
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+processors:
+  # adding some attributes to the resources that are being sent to collector
+  resource:
+    attributes:
+      - key: environment
+        value: demo
+        action: upsert
+      - key: service.namespace
+        value: tulip-test
+        action: upsert
 
 service:
   extensions: [ health_check, pprof ]
   pipelines:
     traces:
       receivers:  [ otlp ]
-      processors: [  ]
-      exporters:  [ nop, otlp, otlphttp ]
+      processors: [ resource ]
+      exporters:  [ file, debug ]
