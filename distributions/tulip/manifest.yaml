@@ -18,7 +18,7 @@ dist:
   module: github.com/ollygarden/tulip/tulip
   name: tulip
   description: OllyGarden Tulip - Enterprise-supported OpenTelemetry Collector distribution
-  version: 0.144.0
+  version: 0.145.0
   output_path: ./_build
   build_tags: "grpcnotrace"
 
