@@ -36,6 +36,8 @@ extensions:
 receivers:
   - gomod: go.opentelemetry.io/collector/receiver/nopreceiver v0.145.0
   - gomod: go.opentelemetry.io/collector/receiver/otlpreceiver v0.145.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/receiver/prometheusreceiverv0.145.0
+
 
 # Exporters: Sending telemetry to backends
 exporters:
@@ -54,6 +56,8 @@ processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/probabilisticsamplerprocessor v0.145.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v0.145.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.145.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/k8sattributesprocessor v0.145.0
+
 
 # Connectors: Pipeline routing
 connectors:
