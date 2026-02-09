@@ -80,7 +80,7 @@ Want to add a component that isn't in the manifest?
 ### Configuration
 
 - Default config: [`distributions/tulip/config.yaml`](distributions/tulip/config.yaml)
-- systemd deployments: `/etc/tulip/config.yaml` and `/etc/tulip/tulip.conf`
+- system deployments: `/etc/tulip/config.yaml` and `/etc/tulip/tulip.conf`
 
 ## Releases
 
