@@ -57,11 +57,17 @@ Want to add a component that isn't in the manifest? You have two options:
 
 1. **Ask us.** Open an issue or reach out at [ollygarden.com/tulip](https://ollygarden.com/tulip). If it benefits the community, we may add it to the supported manifest.
 
-2. **Build your own.** Fork this repository, edit `distributions/tulip/manifest.yaml` to add your components, and run:
+2. **Build your own.** Fork this repository, edit `distributions/tulip/manifest.yaml` to add your components, then build and validate:
    ```bash
-   make generate
-   go mod tidy
-   make build
+   make generate       # regenerate sources from your updated manifest
+   go mod tidy         # resolve new dependencies
+   make docker-test    # build the Docker image and run the test suite against it
+   ```
+
+   Once the tests pass, your image is ready:
+   ```bash
+   make docker                          # builds tulip:local
+   make docker DOCKER_IMAGE=my-tulip:1  # custom image name
    ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development workflow.

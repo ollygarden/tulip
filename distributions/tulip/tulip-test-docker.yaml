@@ -1,0 +1,38 @@
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+  pprof:
+    endpoint: 0.0.0.0:1777
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+
+exporters:
+  file:
+    path: /output/test-docker-output.json
+    format: json
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+processors:
+  resource:
+    attributes:
+      - key: environment
+        value: demo
+        action: upsert
+      - key: service.namespace
+        value: tulip-test
+        action: upsert
+
+service:
+  extensions: [ health_check, pprof ]
+  pipelines:
+    traces:
+      receivers:  [ otlp ]
+      processors: [ resource ]
+      exporters:  [ file, debug ]

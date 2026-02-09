@@ -41,6 +41,29 @@ generate-goreleaser:
 generate-sources: ocb
 	@./scripts/build.sh -d "${DISTRIBUTIONS}" -s true -b ${OTELCOL_BUILDER}
 
+DOCKER_IMAGE ?= tulip:local
+DOCKER_GOARCH ?= $(shell go env GOARCH)
+
+## Build a local Docker image (cross-compiles for linux)
+.PHONY: docker
+docker: ocb
+	@for dist in $$(echo "${DISTRIBUTIONS}" | tr "," " "); do \
+		echo "Building $${dist} for linux/${DOCKER_GOARCH}..."; \
+		CGO_ENABLED=0 GOOS=linux GOARCH=${DOCKER_GOARCH} \
+			./scripts/build.sh -d "$${dist}" -b ${OTELCOL_BUILDER}; \
+		cp distributions/$${dist}/_build/$${dist} distributions/$${dist}/$${dist}; \
+		docker build -t ${DOCKER_IMAGE} distributions/$${dist}/; \
+		rm -f distributions/$${dist}/$${dist}; \
+		echo "Image built: ${DOCKER_IMAGE}"; \
+	done
+
+## Test the Docker image (build + run + send traces + verify)
+.PHONY: docker-test
+docker-test: docker
+	@for dist in $$(echo "${DISTRIBUTIONS}" | tr "," " "); do \
+		DOCKER_IMAGE=${DOCKER_IMAGE} ./test/test-docker.sh -d "$${dist}"; \
+	done
+
 ## Build a release snapshot with goreleaser (dry-run)
 .PHONY: goreleaser-verify
 goreleaser-verify: goreleaser
