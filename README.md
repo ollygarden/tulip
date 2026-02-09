@@ -86,7 +86,7 @@ Want to add a component that isn't in the manifest?
 
 - **Quarterly stable releases** aligned with upstream OpenTelemetry Collector
 - **LTS releases** every 18 months with extended maintenance
-- **Version format:** `vYY.MM` (e.g., v25.11, v26.2)
+- **Version format:** `vYY.MM` (e.g., v25.11, v26.02)
 - CVEs, performance regressions, and critical bugs are backported to all supported releases
 
 For release notes and migration guides, see the [Releases](https://github.com/ollygarden/tulip/releases) page.
