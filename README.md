@@ -92,14 +92,11 @@ For release notes and migration guides, see the [Releases](https://github.com/ol
 ## Support
 
 For support inquiries and pricing:
-- Contact OllyGarden at support@ollygarden.com
+- Contact OllyGarden at ➡️ [ollygarden.com](https://ollygarden.com)
 - Visit [ollygarden.com/tulip](https://ollygarden.com/tulip)
 
 For upstream OpenTelemetry issues, refer to the [OpenTelemetry Collector repository](https://github.com/open-telemetry/opentelemetry-collector).
 
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for build system details, repository structure, testing, and development workflows.
 
 ## License
 
