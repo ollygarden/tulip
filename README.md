@@ -53,11 +53,9 @@ All components track the latest stable upstream OpenTelemetry Collector release.
 
 ## Extending Tulip
 
-Want to add a component that isn't in the manifest? You have two options:
+Want to add a component that isn't in the manifest?
 
-1. **Ask us.** Open an issue or reach out at [ollygarden.com/tulip](https://ollygarden.com/tulip). If it benefits the community, we may add it to the supported manifest.
-
-2. **Build your own.** Fork this repository, edit `distributions/tulip/manifest.yaml` to add your components, then build and validate:
+**Build your own Tulip distribution.** Fork this repository, edit `distributions/tulip/manifest.yaml` to add your components, then build and validate:
    ```bash
    make generate       # regenerate sources from your updated manifest
    go mod tidy         # resolve new dependencies
@@ -69,8 +67,6 @@ Want to add a component that isn't in the manifest? You have two options:
    make docker                          # builds tulip:local
    make docker DOCKER_IMAGE=my-tulip:1  # custom image name
    ```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development workflow.
 
 ## Installation
 
