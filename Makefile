@@ -1,3 +1,6 @@
+GREEN  := $(shell printf '\033[32m')
+RESET  := $(shell printf '\033[0m')
+
 GORELEASER ?= goreleaser
 
 OTELCOL_BUILDER_VERSION ?= 0.144.0
@@ -6,29 +9,49 @@ OTELCOL_BUILDER ?= ${OTELCOL_BUILDER_DIR}/ocb
 
 DISTRIBUTIONS ?= $(shell echo $(notdir $(wildcard ./distributions/*)) | tr " " ",") # outputs comma separated directories names
 
+## Run the full CI pipeline (check + build)
+.PHONY: ci
 ci: check build
+
+## Run all checks (test + goreleaser config validation)
+.PHONY: check
 check: test ensure-goreleaser-up-to-date
 
+## Build the Tulip distribution binary
+.PHONY: build
 build: ocb
 	@./scripts/build.sh -d "${DISTRIBUTIONS}" -b ${OTELCOL_BUILDER}
 
+## Run tests against the built distribution
+.PHONY: test
 test: build
 	@./test/test-all.sh -d "${DISTRIBUTIONS}"
 
+## Generate all artifacts (sources + goreleaser config)
+.PHONY: generate
 generate: generate-sources generate-goreleaser
 
+## Generate the goreleaser configuration file
+.PHONY: generate-goreleaser
 generate-goreleaser:
 	@./scripts/generate-goreleaser.sh -d "${DISTRIBUTIONS}"
 
+## Generate Go source code from manifest.yaml (no compilation)
+.PHONY: generate-sources
 generate-sources: ocb
 	@./scripts/build.sh -d "${DISTRIBUTIONS}" -s true -b ${OTELCOL_BUILDER}
 
+## Build a release snapshot with goreleaser (dry-run)
+.PHONY: goreleaser-verify
 goreleaser-verify: goreleaser
 	@${GORELEASER} release --snapshot --clean
 
+## Verify goreleaser config is up to date with templates
+.PHONY: ensure-goreleaser-up-to-date
 ensure-goreleaser-up-to-date: generate-goreleaser
 	@git diff -s --exit-code distributions/*/.goreleaser.yaml || (echo "Check failed: The goreleaser templates have changed but the .goreleaser.yamls haven't. Run 'make generate-goreleaser' and update your PR." && exit 1)
 
+## Install the OpenTelemetry Collector Builder (ocb) if missing
 .PHONY: ocb
 ocb:
 ifeq (, $(shell command -v ocb 2>/dev/null))
@@ -48,6 +71,7 @@ else
 OTELCOL_BUILDER=$(shell command -v ocb)
 endif
 
+## Check that goreleaser is installed
 .PHONY: goreleaser
 goreleaser:
 	@{ \
@@ -58,6 +82,7 @@ goreleaser:
 	}
 
 REMOTE?=git@github.com:ollygarden/tulip.git
+## Create and push a signed release tag (requires TAG=vX.Y)
 .PHONY: push-tags
 push-tags:
 	@[ "${TAG}" ] || ( echo ">> env var TAG is not set"; exit 1 )
@@ -65,3 +90,16 @@ push-tags:
 	@git tag -a ${TAG} -s -m "Version ${TAG}"
 	@echo "Pushing tag ${TAG}"
 	@git push ${REMOTE} ${TAG}
+
+## Display help for all targets
+.PHONY: help
+help:
+	@awk '/^.PHONY: / { \
+		msg = match(lastLine, /^## /); \
+			if (msg) { \
+				cmd = substr($$0, 9, 100); \
+				msg = substr(lastLine, 4, 1000); \
+				printf "  ${GREEN}%-30s${RESET} %s\n", cmd, msg; \
+			} \
+	} \
+	{ lastLine = $$0 }' $(MAKEFILE_LIST)
