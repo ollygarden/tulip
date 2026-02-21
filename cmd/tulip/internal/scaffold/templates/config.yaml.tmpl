@@ -1,0 +1,23 @@
+extensions:
+  health_check: {}
+  pprof: {}
+
+receivers:
+  otlp:
+    protocols:
+      grpc: {}
+
+exporters:
+  nop:
+  otlp:
+    endpoint: otlp.example.com:4317
+  otlphttp:
+    endpoint: https://otlp.example.com/otlp
+
+service:
+  extensions: [ health_check, pprof ]
+  pipelines:
+    traces:
+      receivers:  [ otlp ]
+      processors: [  ]
+      exporters:  [ nop, otlp, otlphttp ]

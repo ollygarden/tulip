@@ -1,0 +1,15 @@
+[Unit]
+Description={{.Name}} - OpenTelemetry Collector distribution
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/{{.Name}}/{{.Name}}.conf
+ExecStart=/usr/bin/{{.Name}} $OTELCOL_OPTIONS
+KillMode=mixed
+Restart=on-failure
+Type=simple
+User={{.Name}}
+Group={{.Name}}
+
+[Install]
+WantedBy=multi-user.target

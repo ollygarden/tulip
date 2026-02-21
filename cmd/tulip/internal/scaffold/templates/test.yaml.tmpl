@@ -1,0 +1,36 @@
+extensions:
+  health_check: {}
+  pprof: {}
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: localhost:4317
+
+exporters:
+  file:
+    path: ./test-output.json
+    format: json
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+processors:
+  resource:
+    attributes:
+      - key: environment
+        value: demo
+        action: upsert
+      - key: service.namespace
+        value: {{.Name}}-test
+        action: upsert
+
+service:
+  extensions: [ health_check, pprof ]
+  pipelines:
+    traces:
+      receivers:  [ otlp ]
+      processors: [ resource ]
+      exporters:  [ file, debug ]
