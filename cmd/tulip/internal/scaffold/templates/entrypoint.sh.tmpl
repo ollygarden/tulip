@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+CONFIG_PATHS="/etc/{{.Name}}/config.yaml /etc/tulip/config.yaml /etc/otelcol-contrib/config.yaml /etc/otelcol/config.yaml"
+
+find_config() {
+    for path in $CONFIG_PATHS; do
+        if [ -f "$path" ]; then
+            echo "$path"
+            return 0
+        fi
+    done
+    return 1
+}
+
+if ! echo "$@" | grep -q -- "--config"; then
+    if CONFIG_FILE=$(find_config); then
+        echo "Using config file: $CONFIG_FILE"
+        exec /{{.Name}} --config="$CONFIG_FILE" "$@"
+    else
+        echo "ERROR: No config file found."
+        exit 1
+    fi
+else
+    exec /{{.Name}} "$@"
+fi

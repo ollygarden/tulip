@@ -1,0 +1,15 @@
+FROM alpine:latest
+
+LABEL org.opencontainers.image.title="{{.Name}}" \
+      org.opencontainers.image.description="{{.Description}}" \
+      org.opencontainers.image.vendor="{{.Org}}"
+
+ARG USER_UID=10001
+USER ${USER_UID}
+
+COPY --chmod=755 {{.Name}} /{{.Name}}
+COPY --chmod=755 entrypoint.sh /entrypoint.sh
+COPY config.yaml /etc/{{.Name}}/config.yaml
+ENTRYPOINT ["/entrypoint.sh"]
+CMD []
+EXPOSE 4317
