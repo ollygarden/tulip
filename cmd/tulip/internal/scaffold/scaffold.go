@@ -37,7 +37,7 @@ service:
       exporters:  [debug]
 `
 
-const dockerfileTemplate = `FROM golang:1.24-alpine AS builder
+const dockerfileTemplate = `FROM golang:1.25-alpine AS builder
 WORKDIR /build
 COPY manifest.yaml .
 
@@ -46,7 +46,8 @@ RUN wget -qO /usr/bin/ocb \
     "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${OCB_VERSION}/ocb_${OCB_VERSION}_linux_amd64" && \
     chmod +x /usr/bin/ocb
 
-RUN CGO_ENABLED=0 ocb --config=manifest.yaml
+ENV CGO_ENABLED=0
+RUN ocb --config=manifest.yaml
 
 FROM alpine:latest
 
