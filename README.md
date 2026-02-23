@@ -51,18 +51,129 @@ go run github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetryge
 
 All components track the latest stable upstream OpenTelemetry Collector release. See [`manifest.yaml`](distributions/tulip/manifest.yaml) for exact versions.
 
-## Extending Tulip
+## Tulip CLI
 
-Want to add a component that isn't in the manifest?
+The `tulip` CLI lets you create, build, and maintain custom distributions without touching the Makefile directly.
 
-**Build your own Tulip distribution.** Fork this repository, edit `distributions/tulip/manifest.yaml` to add your components, then build and validate:
+```bash
+go install github.com/ollygarden/tulip/cmd/tulip@latest
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `tulip create <name>` | Scaffold a new distribution with interactive component selection |
+| `tulip build <name>` | Compile a distribution binary via ocb |
+| `tulip doctor` | Check all distributions for version drift against the base |
+| `tulip upgrade` | Upgrade all local distributions to the latest base versions |
+
+### Example: managing multiple distributions
+
+Your organisation runs the **base** (`tulip`) and several **team-specific** distributions that layer on extra components.
+
+#### 1. Create distributions
+
+```bash
+# "payments" team needs Kafka components
+tulip create payments
+# → interactive menu lets you pick extra receivers, exporters, etc.
+# → writes distributions/payments/{manifest.yaml, config.yaml, Dockerfile}
+
+# "platform" team needs Prometheus + k8s components
+tulip create platform
+```
+
+The resulting layout:
+
+```
+distributions/
+├── tulip/              # base (committed upstream)
+│   ├── manifest.yaml
+│   ├── config.yaml
+│   └── Dockerfile
+├── payments/           # custom
+│   ├── manifest.yaml
+│   ├── config.yaml
+│   └── Dockerfile
+└── platform/           # custom
+    ├── manifest.yaml
+    ├── config.yaml
+    └── Dockerfile
+```
+
+Each custom distribution inherits every base component (OTLP receiver, batch processor, debug exporter, etc.) and adds whatever the team selected.
+
+#### 2. Build
+
+```bash
+# Compile locally (requires ocb installed)
+tulip build payments
+# → binary at distributions/payments/_build/payments
+
+# Build a Docker image (no local OCB required — compiled inside Docker)
+tulip build platform --docker --tag cr.example.com/platform:latest
+```
+
+`tulip build` flags:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--docker` | `false` | Build a Docker image via multi-stage Dockerfile (no local OCB needed) |
+| `--tag` | `<name>:local` | Docker image tag (only with `--docker`) |
+
+#### 3. Check for drift
+
+When the base is updated, custom distributions may fall behind:
+
+```bash
+tulip doctor
+```
+
+```
+Fetching latest tulip base from ollygarden/tulip...
+Latest base version: 0.144.0
+
+── tulip (base) ──
+  Up to date (0.144.0)
+
+── payments ──
+  Outdated: local 0.142.0 -> upstream 0.144.0
+  3 component(s) with version drift:
+    go.opentelemetry.io/collector/receiver/otlpreceiver: v0.143.0 -> v0.145.0
+    ...
+
+1 distribution(s) have version drift.
+
+Run 'tulip upgrade' to update all distributions.
+```
+
+#### 4. Upgrade and rebuild
+
+```bash
+# Bump all manifests to the latest base versions
+tulip upgrade
+
+# Rebuild everything
+tulip build payments
+tulip build platform --docker --tag cr.example.com/platform:latest
+```
+
+`tulip upgrade` rewrites each `manifest.yaml` with the latest component versions while keeping custom components intact.
+
+## Extending Tulip (manual)
+
+If you prefer working with the Makefile directly instead of the CLI:
+
+1. Edit `distributions/tulip/manifest.yaml` to add your components
+2. Build and validate:
    ```bash
    make generate       # regenerate sources from your updated manifest
    go mod tidy         # resolve new dependencies
    make docker-test    # build the Docker image and run the test suite against it
    ```
 
-   Once the tests pass, your image is ready:
+3. Once the tests pass, your image is ready:
    ```bash
    make docker                          # builds tulip:local
    make docker DOCKER_IMAGE=my-tulip:1  # custom image name

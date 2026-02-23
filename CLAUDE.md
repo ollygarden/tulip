@@ -12,6 +12,39 @@ Tulip is OllyGarden's commercially supported distribution of the OpenTelemetry C
 - Binary output directory: `./bin` (as per user instructions)
 - The repository structure mirrors `otelcol-distributions` template
 
+## Tulip CLI (`cmd/tulip/`)
+
+The `tulip` CLI is a standalone tool for creating and managing custom OTel Collector distributions. It is installed globally (`go install`) and run from the user's own project directory — it never requires the tulip source repo to be present.
+
+### CWD-Relative Model
+
+The CLI works from the **current working directory**, like `go` or `cargo`:
+- All paths resolve relative to cwd (e.g. `./distributions/<name>/manifest.yaml`)
+- The embedded base manifest (`embed.go` → `tulip.BaseManifestYAML`) is the source of truth for base components — no disk lookup needed
+- There is no repo-root walking, no `--root` flag, no `TULIP_ROOT` env var
+
+### Commands
+
+| Command | What it does |
+|---------|-------------|
+| `tulip create <name>` | Interactive TUI to pick components; writes `distributions/<name>/` with manifest + scaffold files |
+| `tulip build <name>` | Local build via `ocb`; `--docker` builds via multi-stage Dockerfile (no local OCB needed) |
+| `tulip doctor` | Compares local distributions against upstream for version drift |
+| `tulip upgrade` | Updates local distribution component versions to match upstream |
+
+### Internal Packages
+
+- **`internal/manifest`** — Data model (`Manifest`, `Dist`, `Entry`), cwd-relative I/O (`FindLocalDistributions`, `WriteToDistributions`), upstream fetch, `Generate`, `Upgrade`
+- **`internal/catalog`** — Fetches the full OTel contrib component catalog from GitHub for the `create` TUI
+- **`internal/scaffold`** — Generates `config.yaml` and `Dockerfile` templates for new distributions
+
+### Building and Testing the CLI
+
+```bash
+go build -o bin/tulip ./cmd/tulip
+go test ./cmd/tulip/... -v
+```
+
 ## Build System Architecture
 
 ### Component Manifest System
