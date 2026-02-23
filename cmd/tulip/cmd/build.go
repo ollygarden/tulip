@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 
 	"github.com/spf13/cobra"
 )
@@ -16,14 +15,14 @@ var (
 )
 
 func init() {
-	buildCmd.Flags().BoolVar(&buildDocker, "docker", false, "Build a Docker image after compiling")
+	buildCmd.Flags().BoolVar(&buildDocker, "docker", false, "Build a Docker image (no local OCB required)")
 	buildCmd.Flags().StringVar(&buildTag, "tag", "", "Docker image tag (default: <name>:local)")
 	rootCmd.AddCommand(buildCmd)
 }
 
 var buildCmd = &cobra.Command{
 	Use:   "build <name>",
-	Short: "Build a Tulip distribution binary (and optionally a Docker image)",
+	Short: "Build a Tulip distribution binary or Docker image",
 	Args:  cobra.ExactArgs(1),
 	RunE:  runBuild,
 }
@@ -38,47 +37,42 @@ func runBuild(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("distribution %q not found (expected %s)", name, manifestPath)
 	}
 
+	if buildDocker {
+		return runDockerBuild(name, distDir)
+	}
+
+	return runLocalBuild(name, distDir)
+}
+
+// runLocalBuild compiles a native binary using a locally installed OCB.
+func runLocalBuild(name, distDir string) error {
 	ocbPath, err := findOCB()
 	if err != nil {
 		return err
 	}
 
-	// Build the native binary.
 	fmt.Printf("Building %s...\n", name)
-	if err := runOCB(ocbPath, distDir, nil); err != nil {
+	if err := runOCB(ocbPath, distDir); err != nil {
 		return fmt.Errorf("ocb build failed: %w", err)
 	}
 	fmt.Println("Build succeeded.")
+	fmt.Printf("\nBinary: %s\n", filepath.Join(distDir, "_build", name))
+	return nil
+}
 
-	if !buildDocker {
-		fmt.Printf("\nBinary: %s\n", filepath.Join(distDir, "_build", name))
-		return nil
+// runDockerBuild builds a Docker image using the distribution's multi-stage
+// Dockerfile. OCB is downloaded and the binary is compiled inside the Docker
+// build — no local tooling beyond Docker is required.
+func runDockerBuild(name, distDir string) error {
+	dockerfile := filepath.Join(distDir, "Dockerfile")
+	if _, err := os.Stat(dockerfile); err != nil {
+		return fmt.Errorf("no Dockerfile in distribution %q (expected %s)", name, dockerfile)
 	}
 
-	// Docker build: cross-compile a linux binary, copy it next to the
-	// Dockerfile, build the image, then clean up.
 	tag := buildTag
 	if tag == "" {
 		tag = name + ":local"
 	}
-
-	fmt.Printf("\nCross-compiling for linux/%s...\n", runtime.GOARCH)
-	env := []string{
-		"CGO_ENABLED=0",
-		"GOOS=linux",
-		"GOARCH=" + runtime.GOARCH,
-	}
-	if err := runOCB(ocbPath, distDir, env); err != nil {
-		return fmt.Errorf("linux cross-compile failed: %w", err)
-	}
-
-	// Copy binary next to Dockerfile so the COPY instruction works.
-	src := filepath.Join(distDir, "_build", name)
-	dst := filepath.Join(distDir, name)
-	if err := copyFile(src, dst); err != nil {
-		return fmt.Errorf("copying binary for docker build: %w", err)
-	}
-	defer os.Remove(dst)
 
 	fmt.Printf("Building Docker image %s...\n", tag)
 	docker := exec.Command("docker", "build", "-t", tag, ".")
@@ -110,23 +104,11 @@ func findOCB() (string, error) {
 	return "", fmt.Errorf("ocb not found in PATH or ~/bin/ocb\nInstall it with: make install-ocb  (or see https://github.com/open-telemetry/opentelemetry-collector/tree/main/cmd/builder)")
 }
 
-// runOCB executes ocb with the given working directory and optional extra env vars.
-func runOCB(ocbPath, distDir string, extraEnv []string) error {
+// runOCB executes ocb with the given working directory.
+func runOCB(ocbPath, distDir string) error {
 	cmd := exec.Command(ocbPath, "--config", "manifest.yaml")
 	cmd.Dir = distDir
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if len(extraEnv) > 0 {
-		cmd.Env = append(os.Environ(), extraEnv...)
-	}
 	return cmd.Run()
-}
-
-// copyFile copies src to dst using read/write (no hardlink issues across filesystems).
-func copyFile(src, dst string) error {
-	data, err := os.ReadFile(src)
-	if err != nil {
-		return err
-	}
-	return os.WriteFile(dst, data, 0o755)
 }

@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 )
 
 type templateData struct {
-	Name string
+	Name       string
+	Version    string
+	OutputPath string // cleaned, e.g. "_build" not "./_build"
 }
 
 const configTemplate = `# Minimal configuration for {{.Name}} to start successfully.
@@ -34,22 +37,38 @@ service:
       exporters:  [debug]
 `
 
-const dockerfileTemplate = `FROM alpine:latest
+const dockerfileTemplate = `FROM golang:1.24-alpine AS builder
+WORKDIR /build
+COPY manifest.yaml .
+
+ARG OCB_VERSION={{.Version}}
+RUN wget -qO /usr/bin/ocb \
+    "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${OCB_VERSION}/ocb_${OCB_VERSION}_linux_amd64" && \
+    chmod +x /usr/bin/ocb
+
+RUN CGO_ENABLED=0 ocb --config=manifest.yaml
+
+FROM alpine:latest
 
 LABEL org.opencontainers.image.title="{{.Name}}"
 
-COPY --chmod=755 {{.Name}} /{{.Name}}
-COPY config.yaml /etc/{{.Name}}/config.yaml
+ARG USER_UID=10001
+USER ${USER_UID}
 
-EXPOSE 4317
+COPY --from=builder /build/{{.OutputPath}}/{{.Name}} /{{.Name}}
 
 ENTRYPOINT ["/{{.Name}}"]
 CMD ["--config", "/etc/{{.Name}}/config.yaml"]
+EXPOSE 4317 4318
 `
 
 // Write generates config.yaml and Dockerfile in distDir for the given distribution name.
-func Write(distDir string, name string) error {
-	data := templateData{Name: name}
+func Write(distDir, name, version, outputPath string) error {
+	data := templateData{
+		Name:       name,
+		Version:    version,
+		OutputPath: strings.TrimPrefix(outputPath, "./"),
+	}
 
 	files := []struct {
 		name     string

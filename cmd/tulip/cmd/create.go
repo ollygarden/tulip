@@ -94,7 +94,7 @@ func runCreate(cmd *cobra.Command, args []string) error {
 
 	// Generate config.yaml and Dockerfile.
 	distDir := filepath.Dir(path)
-	if err := scaffold.Write(distDir, name); err != nil {
+	if err := scaffold.Write(distDir, name, m.Dist.Version, m.Dist.OutputPath); err != nil {
 		return fmt.Errorf("generating scaffold files: %w", err)
 	}
 

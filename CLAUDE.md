@@ -28,7 +28,7 @@ The CLI works from the **current working directory**, like `go` or `cargo`:
 | Command | What it does |
 |---------|-------------|
 | `tulip create <name>` | Interactive TUI to pick components; writes `distributions/<name>/` with manifest + scaffold files |
-| `tulip build <name>` | Runs `ocb` against `distributions/<name>/manifest.yaml`; optional `--docker` flag |
+| `tulip build <name>` | Local build via `ocb`; `--docker` builds via multi-stage Dockerfile (no local OCB needed) |
 | `tulip doctor` | Compares local distributions against upstream for version drift |
 | `tulip upgrade` | Updates local distribution component versions to match upstream |
 

@@ -12,8 +12,10 @@ func TestWrite(t *testing.T) {
 
 	dir := t.TempDir()
 	name := "acme-collector"
+	version := "0.145.0"
+	outputPath := "./_build"
 
-	if err := Write(dir, name); err != nil {
+	if err := Write(dir, name, version, outputPath); err != nil {
 		t.Fatalf("Write() error = %v", err)
 	}
 
@@ -39,10 +41,12 @@ func TestWrite(t *testing.T) {
 		content := string(data)
 
 		for _, want := range []string{
-			"FROM alpine:latest",
-			"COPY --chmod=755 " + name,
-			"/etc/" + name + "/config.yaml",
-			"EXPOSE 4317",
+			"FROM golang:1.24-alpine AS builder",
+			"ARG OCB_VERSION=" + version,
+			"ocb --config=manifest.yaml",
+			"COPY --from=builder /build/_build/" + name,
+			"ENTRYPOINT [\"/acme-collector\"]",
+			"EXPOSE 4317 4318",
 		} {
 			if !strings.Contains(content, want) {
 				t.Errorf("Dockerfile missing %q", want)

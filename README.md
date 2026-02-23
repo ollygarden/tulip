@@ -107,11 +107,11 @@ Each custom distribution inherits every base component (OTLP receiver, batch pro
 #### 2. Build
 
 ```bash
-# Compile the payments collector
+# Compile locally (requires ocb installed)
 tulip build payments
 # → binary at distributions/payments/_build/payments
 
-# Build platform with a Docker image
+# Build a Docker image (no local OCB required — compiled inside Docker)
 tulip build platform --docker --tag cr.example.com/platform:latest
 ```
 
@@ -119,8 +119,8 @@ tulip build platform --docker --tag cr.example.com/platform:latest
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--docker` | `false` | Build a Docker image after compiling |
-| `--tag` | `<name>:local` | Docker image tag |
+| `--docker` | `false` | Build a Docker image via multi-stage Dockerfile (no local OCB needed) |
+| `--tag` | `<name>:local` | Docker image tag (only with `--docker`) |
 
 #### 3. Check for drift
 
