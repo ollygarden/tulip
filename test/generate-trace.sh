@@ -12,7 +12,7 @@ if [[ -z $distribution ]]; then
     exit 1
 fi
 
-tracegen -otlp-endpoint localhost:4317 -otlp-insecure -service e2e-test &>> ./test/logs/tracegen-${distribution}.log
+tracegen -otlp-endpoint localhost:4317 -otlp-insecure -service e2e-test >> ./test/logs/tracegen-${distribution}.log 2>&1
 if [ $? != 0 ]; then
     echo "Failed to generate a trace."
     exit 1

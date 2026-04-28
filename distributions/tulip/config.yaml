@@ -7,17 +7,45 @@ receivers:
     protocols:
       grpc: {}
 
+processors:
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 1500
+    spike_limit_mib: 512
+
 exporters:
   nop:
   otlp:
     endpoint: otlp.example.com:4317
+    sending_queue:
+      enabled: true
+      queue_size: 1000
+    batch:
+      flush_timeout: 200ms
+      min_size: 8192
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
   otlphttp:
     endpoint: https://otlp.example.com/otlp
+    sending_queue:
+      enabled: true
+      queue_size: 1000
+    batch:
+      flush_timeout: 200ms
+      min_size: 8192
+    retry_on_failure:
+      enabled: true
+      initial_interval: 5s
+      max_interval: 30s
+      max_elapsed_time: 300s
 
 service:
   extensions: [ health_check, pprof ]
   pipelines:
     traces:
       receivers:  [ otlp ]
-      processors: [  ]
+      processors: [ memory_limiter ]
       exporters:  [ nop, otlp, otlphttp ]
