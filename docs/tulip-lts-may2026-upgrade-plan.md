@@ -17,7 +17,7 @@ The Tulip LTS provides:
 
 - **A curated, validated component set** — every component is reviewed for stability, active maintenance, and known issues before inclusion.
 - **A predictable upgrade path** — instead of chasing every upstream release, teams upgrade LTS-to-LTS with clear migration documentation.
-- **Production-ready defaults** — the default configuration includes OOM protection, retry logic, and durable queuing out of the box.
+- **Production-ready defaults** — the default configuration includes OOM protection, retry logic.
 - **Extended support window** — security patches and critical fixes backported without requiring a full version upgrade.
 
 ## Overview
