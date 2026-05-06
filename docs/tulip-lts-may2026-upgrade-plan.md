@@ -24,9 +24,9 @@ The Tulip LTS provides:
 
 This document defines the component composition and configuration changes for the Tulip LTS release, targeting May 2026. The LTS follows a **stability-first** approach: only stable/beta components with active maintainers are included.
 
-**Version bump:** v0.145.0 → v0.150.0 (all components)
+**Version bump:** v0.145.0 → v0.151.0 (all components)
 
-The target version v0.150.0 was selected as the latest stable upstream release at the time of this LTS cut, verified against the official otelcol-contrib distribution manifest:
+The target version v0.151.0 was selected as the latest stable upstream release at the time of this LTS cut, verified against the official otelcol-contrib distribution manifest:
 - https://github.com/open-telemetry/opentelemetry-collector-releases/blob/main/distributions/otelcol-contrib/manifest.yaml
 
 ---
@@ -101,53 +101,58 @@ service:
 
 ---
 
-### Added: memorylimiterprocessor
+### Removed: healthcheckextension
 
-**Reason:** Prevents the collector from being OOM-killed in production. Without it, memory spikes from telemetry bursts or slow downstream exporters cause unbounded memory growth, leading to pod eviction (Kubernetes) or host destabilization.
-
-This is a core component (not contrib), stable maturity, and recommended by every major OTel production deployment guide.
-
-**Configuration example:**
-
-```yaml
-processors:
-  memory_limiter:
-    check_interval: 1s
-    limit_mib: 1500
-    spike_limit_mib: 512
-
-service:
-  pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [memory_limiter]
-      exporters: [otlp]
-```
-
-**Note:** `memory_limiter` should be the first processor in every pipeline to ensure backpressure is applied before any processing work is done.
+**Reason:** The healthcheck extension v1 and v2 share code between them using a feature flag ([#42256](https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/42256)). Including v1 would indirectly support v2, which is not the objective for an LTS release where component behavior must be fully predictable and stable.
 
 ---
 
-## Final LTS Component Manifest (25 components)
+### Added: redactionprocessor
+
+**Reason:** Allows redacting sensitive data from telemetry attributes before export. Essential for enterprise environments with data privacy requirements (PII, HIPAA, GDPR). This is a contrib component with stable maturity.
+
+---
+
+### Added: filestorage extension
+
+**Reason:** Provides persistent file-based storage for components that need durable state across collector restarts (e.g., exporter sending queues, receiver checkpoints). Critical for reliable telemetry delivery in production.
+
+---
+
+### Added: hostmetricsreceiver
+
+**Reason:** Collects host-level metrics (CPU, memory, disk, network, filesystem, processes) from the machine running the collector. Essential for infrastructure monitoring use cases where the collector also serves as a host metrics agent.
+
+---
+
+### Added: filelogreceiver
+
+**Reason:** Reads and parses log data from files on the host. Enables log collection pipelines where applications write to local files. Widely used in production for collecting application logs, system logs, and container logs.
+
+---
+
+## Final LTS Component Manifest (28 components)
 
 ### Extensions (7)
 
-| Component | Source | Stability |
-|-----------|--------|-----------|
-| zpagesextension | core | stable |
-| healthcheckextension | contrib | beta |
-| pprofextension | contrib | beta |
-| basicauthextension | contrib | beta |
-| bearertokenauthextension | contrib | beta |
-| oauth2clientauthextension | contrib | beta |
-| oidcauthextension | contrib | beta |
+| Component | Source | Stability | Note |
+|-----------|--------|-----------|------|
+| zpagesextension | core | stable | |
+| pprofextension | contrib | beta | |
+| basicauthextension | contrib | beta | |
+| bearertokenauthextension | contrib | beta | |
+| oauth2clientauthextension | contrib | beta | |
+| oidcauthextension | contrib | beta | |
+| filestorage | contrib | beta | NEW |
 
-### Receivers (2)
+### Receivers (4)
 
-| Component | Source | Stability |
-|-----------|--------|-----------|
-| otlpreceiver | core | stable |
-| nopreceiver | core | stable |
+| Component | Source | Stability | Note |
+|-----------|--------|-----------|------|
+| otlpreceiver | core | stable | |
+| nopreceiver | core | stable | |
+| hostmetricsreceiver | contrib | beta | NEW |
+| filelogreceiver | contrib | beta | NEW |
 
 ### Exporters (5)
 
@@ -163,13 +168,13 @@ service:
 
 | Component | Source | Stability | Note |
 |-----------|--------|-----------|------|
-| memorylimiterprocessor | core | stable | NEW |
 | attributesprocessor | contrib | stable | |
 | resourceprocessor | contrib | stable | |
 | spanprocessor | contrib | stable | |
 | probabilisticsamplerprocessor | contrib | stable | |
 | filterprocessor | contrib | stable | |
 | transformprocessor | contrib | stable | |
+| redactionprocessor | contrib | stable | NEW |
 
 ### Connectors (1)
 
