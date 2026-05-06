@@ -131,7 +131,7 @@ service:
 
 ---
 
-## Final LTS Component Manifest (28 components)
+## Final LTS Component Manifest (27 components)
 
 ### Extensions (7)
 
