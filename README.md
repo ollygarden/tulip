@@ -43,10 +43,10 @@ go run github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemetryge
 
 | Category | Components |
 |---|---|
-| **Extensions** | zpages, healthcheck, pprof, basicauth, bearertokenauth, oauth2client, oidc |
-| **Receivers** | otlp (gRPC + HTTP), nop |
+| **Extensions** | zpages, pprof, basicauth, bearertokenauth, oauth2client, oidc, filestorage |
+| **Receivers** | otlp (gRPC + HTTP), nop, hostmetrics, filelog |
 | **Exporters** | otlp (gRPC), otlphttp, file, debug, nop |
-| **Processors** | batch, attributes, resource, span, probabilisticsampler, filter, transform |
+| **Processors** | attributes, resource, span, probabilisticsampler, filter, transform, redaction |
 | **Connectors** | forward |
 
 All components track the latest stable upstream OpenTelemetry Collector release. See [`manifest.yaml`](distributions/tulip/manifest.yaml) for exact versions.

@@ -30,7 +30,7 @@ do
         exit 1
     fi
 
-    curl -s localhost:13133 | grep "Server available" > /dev/null
+    grep -q "Everything is ready" "./test/logs/otelcol-${distribution}.log"
     if [ $? == 0 ]; then
         echo "✅ The '${distribution}' distribution of the OpenTelemetry Collector started."
         break
