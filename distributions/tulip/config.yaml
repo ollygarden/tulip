@@ -1,17 +1,10 @@
 extensions:
-  health_check: {}
   pprof: {}
 
 receivers:
   otlp:
     protocols:
       grpc: {}
-
-processors:
-  memory_limiter:
-    check_interval: 1s
-    limit_mib: 1500
-    spike_limit_mib: 512
 
 exporters:
   nop:
@@ -43,9 +36,9 @@ exporters:
       max_elapsed_time: 300s
 
 service:
-  extensions: [ health_check, pprof ]
+  extensions: [ pprof ]
   pipelines:
     traces:
       receivers:  [ otlp ]
-      processors: [ memory_limiter ]
+      processors: []
       exporters:  [ nop, otlp, otlphttp ]
