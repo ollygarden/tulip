@@ -60,6 +60,8 @@ processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/filterprocessor v0.151.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/transformprocessor v0.151.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/redactionprocessor v0.151.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/drainprocessor v0.151.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/logdedupprocessor v0.151.0
 
 # Connectors: Pipeline routing
 connectors:
