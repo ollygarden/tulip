@@ -10,33 +10,6 @@ This is a regular quarterly release (not LTS). It follows the standard quarterly
 
 ## Component Changes from v26.05.1
 
-### Added: drainprocessor
-
-**Type:** Processor (logs)  
-**Stability:** Alpha  
-**Source:** opentelemetry-collector-contrib v0.151.0  
-**Codeowners:** MikeGoldsmith, atoulme, martinjt  
-
-**Purpose:** Applies the Drain log-clustering algorithm to derive log message templates from raw log bodies. Groups similar logs by learning patterns (wildcards `<*>`), attaching the learned template as a `log.record.template` attribute. Essential for log reduction, grouping, and anomaly detection.
-
-**When to use:** 
-- Reduce high-cardinality log streams by clustering similar messages
-- Enable aggregation and alerting on log templates instead of raw bodies
-- Feed pipeline data to logdedup processor for per-template deduplication
-
-**Configuration example:**
-```yaml
-processors:
-  drain:
-    drain:
-      algorithm: drain
-      tau: 0.5  # Cluster similarity threshold (0-1)
-```
-
-**Integration note:** Works best as a pipeline stage *before* logdedup processor. See E-2660 for full evaluation and chaining guidance.
-
----
-
 ### Added: logdedupprocessor
 
 **Type:** Processor (logs)  
@@ -66,11 +39,11 @@ processors:
       regexp: '.*ERROR.*'  # optional: only dedup ERROR level logs
 ```
 
-**Integration note:** By default, dedup key is derived from `body + resource attributes + severity + log attributes`. When chaining after drainprocessor, **explicitly configure `include_fields: [attributes.log.record.template]`** to dedupe on the template instead of raw body. See E-2660 for full evaluation and gotchas.
+**Integration note:** By default, dedup key is derived from `body + resource attributes + severity + log attributes`. Use `include_fields` and `exclude_fields` to customize which attributes are used in the dedup key.
 
 ---
 
-## Full Component Manifest (29 components)
+## Full Component Manifest (27 components)
 
 ### Extensions (7)
 
@@ -103,7 +76,7 @@ processors:
 | otlphttpexporter | stable | v0.151.0 |
 | fileexporter | beta | v0.151.0 |
 
-### Processors (9)
+### Processors (8)
 
 | Component | Stability | Version | Note |
 |-----------|-----------|---------|------|
@@ -114,7 +87,6 @@ processors:
 | filterprocessor | stable | v0.151.0 | |
 | transformprocessor | stable | v0.151.0 | |
 | redactionprocessor | stable | v0.151.0 | |
-| drainprocessor | alpha | v0.151.0 | NEW |
 | logdedupprocessor | alpha | v0.151.0 | NEW |
 
 ### Connectors (1)
