@@ -10,11 +10,22 @@ Orchestrate a complete Tulip quarterly release from start to finish, covering co
 ## Prerequisites
 
 **Before invoking this skill:**
-- [ ] Decide target OTel version (check https://github.com/open-telemetry/opentelemetry-collector-releases/releases for latest)
-- [ ] Planned release version (e.g., v26.08.0, follows vYY.MM.0 for quarterly)
-- [ ] Linear project created for this release (e.g., "Tulip v26.08 Release")
-- [ ] Access to: tulip, bonsai, seedbed-charts repos (and ollygarden.com if updating web)
-- [ ] Time allocated (full audit + documentation ~4-6 hours)
+
+1. **Decide target version**
+   - [ ] Check latest: https://github.com/open-telemetry/opentelemetry-collector-releases/releases
+   - [ ] Decide: release with latest or choose specific version
+
+2. **Identify downstream repos**
+   - [ ] Search for repos that reference Tulip/bonsai distributions:
+     ```bash
+     grep -r "ghcr.io/ollygarden/bonsai\|ollygarden/bonsai" /path/to/your/repos
+     ```
+   - [ ] Document which repos need updates in Phase 7
+
+3. **Administrative**
+   - [ ] Create Linear card/issue for this release
+   - [ ] Ensure access to all identified repos
+   - [ ] Plan time for component audit (varies by scope)
 
 ---
 
@@ -199,7 +210,7 @@ Create a single comprehensive release document that covers all aspects:
 ```bash
 # Tulip repository
 cd tulip
-git checkout -b jonathan/release-vYY.MM.0
+git checkout -b release-vYY.MM.0
 git add distributions/tulip/manifest.yaml go.sum docs/tulip-vYY.MM-release.md
 git commit -m "feat(tulip): release vYY.MM.0 with v0.X.Y components
 
@@ -211,12 +222,18 @@ git commit -m "feat(tulip): release vYY.MM.0 with v0.X.Y components
 Refs: E-XXXX"
 
 # Downstream repositories (if applicable)
+# Identify which repos contain Tulip image references before proceeding
+# Common patterns:
+#   - Kubernetes Helm values files
+#   - Infrastructure-as-code configs (Kustomize, Terraform, etc.)
+#   - Deployment patches or overlays
+
 cd downstream-repo
-git checkout -b jonathan/sync-tulip-vYY.MM.0
-git add distributions/*/manifest.yaml [deployment-config-files]
+git checkout -b sync-release-vYY.MM.0
+git add [files-with-version-references]
 git commit -m "chore: sync component versions for Tulip vYY.MM.0
 
-- Updated all distribution manifests to v0.X.Y
+- Updated all distribution image references to v0.X.Y
 - Updated deployment configurations to reference new versions
 - Aligns with upstream Tulip vYY.MM.0 release
 
@@ -228,7 +245,7 @@ Refs: E-XXXX"
 
 ```bash
 # Push branches
-cd tulip && git push -u origin jonathan/release-vYY.MM.0
+cd tulip && git push -u origin release-vYY.MM.0
 # Push any downstream repos
 
 # Create PRs with comprehensive descriptions
@@ -360,19 +377,30 @@ See docs/tulip-vYY.MM-known-issues.md for deployment checklist.
 
 ### Phase 7: Deployment Synchronization (if applicable)
 
-#### 7.1 Update Deployment Repositories
+#### 7.1 Identify & Update Deployment Repositories
 
-If you maintain separate deployment configurations (e.g., Kubernetes Helm charts, infrastructure-as-code):
+**Before proceeding, identify which repos reference Tulip distribution images:**
 
 ```bash
-# For each deployment repo:
-cd deployment-repo
-git checkout -b jonathan/sync-release-vYY.MM.0
-# Update all version references for new release
-git add [version/config files]
+# Search for bonsai/Tulip image references in your repos
+grep -r "ghcr.io/ollygarden/bonsai" /path/to/repos/**/*.yaml
+
+# Common locations:
+#   - Kubernetes Helm values files (*.yaml in charts/)
+#   - Infrastructure config patches (Kustomize, Terraform, etc.)
+#   - Docker Compose or deployment manifests
+```
+
+For each repo with version references:
+
+```bash
+cd repo-with-tulip-refs
+git checkout -b sync-release-vYY.MM.0
+# Update all distribution image tags to v0.X.Y
+git add [files-with-version-references]
 git commit -m "chore: sync to Tulip vYY.MM.0
 
-Updated all distribution references to v0.X.Y
+Updated all distribution image references to v0.X.Y
 See tulip#PR_NUMBER for release notes and audit.
 
 Refs: E-XXXX"
@@ -389,14 +417,14 @@ gh pr create
 
 ### Phase 8: Public Communication (if applicable)
 
-#### 8.1 Update Public Channels
+#### 8.1 Update Public Channels (if applicable)
 
 If maintaining a public website or documentation site:
 
 ```bash
 # Update version information, release notes, upgrade guides
 cd public-docs-repo
-git checkout -b jonathan/release-vYY.MM.0
+git checkout -b release-vYY.MM.0-website
 # Update version references, release summary, upgrade instructions
 git add [docs/config files]
 git commit -m "chore: publish Tulip vYY.MM.0 release information"
