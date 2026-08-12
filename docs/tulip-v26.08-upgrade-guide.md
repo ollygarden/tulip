@@ -9,8 +9,7 @@
 
 ## Executive Summary
 
-Tulip v26.08.0 is a **regular quarterly release** (not LTS) with two significant additions:
-- **drainprocessor** (alpha) — log clustering via Drain algorithm
+Tulip v26.08.0 is a **regular quarterly release** (not LTS) with one significant addition:
 - **logdedupprocessor** (alpha) — log deduplication with time-window aggregation
 
 **Upgrade Path:** v26.05.1 LTS → v26.08.0 is safe. All 27 components are actively maintained. Two components (debugexporter, spanprocessor) require attention for production use.
@@ -19,20 +18,13 @@ Tulip v26.08.0 is a **regular quarterly release** (not LTS) with two significant
 
 ## What's New
 
-### Added Components (2)
-
-#### drainprocessor
-- **Type:** Processor (logs)
-- **Stability:** Alpha
-- **Purpose:** Clusters similar logs by learning message templates, attaches template as `log.record.template` attribute
-- **Use case:** Reduce high-cardinality log streams; enable aggregation by log pattern
+### Added Components (1)
 
 #### logdedupprocessor
 - **Type:** Processor (logs)
 - **Stability:** Alpha
 - **Purpose:** Collapses identical logs over a time window, emits count attribute
 - **Use case:** Reduce storage costs for identical repeating logs
-- **Critical integration note:** When chaining after drain, use `include_fields: [attributes.log.record.template]` to dedupe on templates, not raw bodies
 
 See **Integration Guide** (below) for configuration examples.
 
@@ -81,7 +73,7 @@ See **Integration Guide** (below) for configuration examples.
 | otlphttpexporter | STABLE | OTel Core Team | Production-ready | ✅ |
 | fileexporter | ALPHA | paulojmdias | Actively maintained, test first | ⚠️ |
 
-#### Processors (9)
+#### Processors (8)
 
 | Component | Stability | Maintainers | Status | Risk |
 |-----------|-----------|-------------|--------|------|
@@ -92,7 +84,6 @@ See **Integration Guide** (below) for configuration examples.
 | filterprocessor | ALPHA | 4 owners | Production-tested | ✅ |
 | transformprocessor | BETA | 4 owners | Actively maintained, well-supported | ✅ |
 | redactionprocessor | BETA | 4 owners | Actively maintained | ✅ |
-| drainprocessor | ALPHA | MikeGoldsmith | NEW, actively maintained | ⚠️ |
 | logdedupprocessor | ALPHA | MikeGoldsmith | NEW, actively maintained | ⚠️ |
 
 #### Connectors (1)
@@ -255,9 +246,9 @@ These components have ALPHA stability and APIs may change:
 
 ## Integration Guide
 
-### New Processors: drain + logdedup
+### Logdedup Processor Configuration
 
-#### Basic Example: Cluster & dedupe logs
+#### Basic Example: Deduplicate identical logs
 
 ```yaml
 receivers:
@@ -265,16 +256,9 @@ receivers:
     include_paths: [/var/log/app/*.log]
 
 processors:
-  drain:
-    drain:
-      algorithm: drain
-      tau: 0.5  # Similarity threshold (0-1, default 0.5)
-
   logdedup:
     interval: 5s
     log_count_attribute: dedup_count
-    include_fields:
-      - attributes.log.record.template  # CRITICAL: dedupe on drain's template
 
 exporters:
   otlp:
@@ -287,11 +271,9 @@ service:
   pipelines:
     logs:
       receivers: [filelog]
-      processors: [drain, logdedup]
+      processors: [logdedup]
       exporters: [otlp]
 ```
-
-**Critical detail:** Without `include_fields: [attributes.log.record.template]`, logdedup keys off raw body (defeating drain's clustering). This is not a bug—it's a tuning requirement. See E-2660 for full evaluation.
 
 #### Advanced: Conditional dedup (only ERROR logs)
 
@@ -300,16 +282,10 @@ processors:
   logdedup:
     interval: 5s
     log_count_attribute: dedup_count
-    include_fields:
-      - attributes.log.record.template
     condition:
       match_type: regexp
       regexp: '.*ERROR.*'  # Only dedupe ERROR-level logs
 ```
-
-#### Drain Warm-up: Expect template variation in first minutes
-
-When drain starts, log clusters stabilize over time. Early occurrences may fall into different clusters before the template stabilizes. This is expected and harmless—the template converges within minutes. Plan dedup window (`interval: 5s`) accordingly.
 
 ---
 
@@ -319,12 +295,12 @@ When drain starts, log clusters stabilize over time. Early occurrences may fall 
 
 All existing pipelines remain compatible. The upgrade is backwards-compatible.
 
-### Optional: Enable new log processors
+### Optional: Enable log deduplication
 
-If you want log clustering and deduplication:
-1. Add `drain` and `logdedup` processors to your log pipeline (see examples above)
-2. Test with synthetic logs first
-3. Monitor dedup_count and template accuracy before scaling
+If you want to reduce storage costs for identical repeated logs:
+1. Add `logdedup` processor to your log pipeline (see examples above)
+2. Test with your actual logs first
+3. Monitor dedup_count before scaling
 
 ### Required: Audit debugexporter usage
 
