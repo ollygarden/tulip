@@ -20,7 +20,7 @@ Orchestrate a complete Tulip quarterly release from start to finish, covering co
 
 ## Release Workflow
 
-### Phase 1: Component Audit (1-2 hours)
+### Phase 1: Component Audit
 
 #### 1.1 Check Latest OTel Version
 
@@ -33,13 +33,13 @@ curl -s https://api.github.com/repos/open-telemetry/opentelemetry-collector-rele
 
 **Decision:** Choose version to release with (recommend latest for regular quarterly releases).
 
-#### 1.2 Audit ALL Components (30+ components)
+#### 1.2 Audit All Components
 
 Run comprehensive upstream audit using an agent:
 
 ```
 Agent Task:
-- Audit all 29 components at target version
+- Audit all components in the manifest at target version
 - List ALL open GitHub issues (not just closed)
 - Categorize by severity (CRITICAL, HIGH, MEDIUM, LOW)
 - Flag performance-affecting issues
@@ -56,7 +56,7 @@ Agent Task:
 
 #### 1.3 Evaluate New/Alpha Components (if adding)
 
-For each new component (e.g., drain, logdedup):
+For each new component being added to the release:
 
 ```
 Agent Task:
@@ -75,7 +75,7 @@ Agent Task:
 
 ---
 
-### Phase 2: Version Updates (1 hour)
+### Phase 2: Version Updates
 
 #### 2.1 Update Tulip Manifest
 
@@ -96,215 +96,215 @@ make test                # Run full test suite
 make ensure-goreleaser-up-to-date  # Validate release config
 ```
 
-#### 2.2 Update Bonsai Distributions
+#### 2.2 Update Downstream Distributions (if applicable)
 
 ```bash
-cd bonsai
-# Update each distribution manifest:
-# distributions/nike/manifest.yaml
-# distributions/jjteste/manifest.yaml
-# distributions/external-collector/manifest.yaml
-# distributions/ollygarden-collector/manifest.yaml
-#
-# For each:
+cd downstream-repo
+# Update each distribution manifest in the repository:
 # - Update dist.version: NEW_VERSION
-# - Replace all component versions to match Tulip
-# - Sync with Tulip's manifest.yaml exactly
-```
-
-**Validation per distribution:**
-```bash
-make build DISTRIBUTION=nike       # Each must build
-docker build -t nike:local distributions/nike/
-```
-
-#### 2.3 Update seedbed-charts Image Versions
-
-**File:** `charts/observability/values.og-ext-prod-gke.yaml` (and similar for dev/internal)
-
-```yaml
-# External collector
-- name: external-collector
-  image: "ghcr.io/ollygarden/bonsai/external-collector:NEW_VERSION"
-
-# Ollygarden collector gateway
-- name: otel-collector
-  image: "ghcr.io/ollygarden/bonsai/ollygarden-collector:NEW_VERSION"
+# - Replace all component versions to match Tulip's manifest
+# - Ensure version synchronization across distributions
 ```
 
 **Validation:**
 ```bash
-helm lint charts/observability
-helm template test . > /tmp/manifests.yaml  # Verify valid K8s YAML
+# Per distribution:
+make build              # Must build successfully
+docker build -t dist:local .
 ```
 
-#### 2.4 Update seedbed Image Versions (Dev/Internal)
+#### 2.3 Update Deployment Configuration (if applicable)
 
-**Files:**
-- `clusters/aws-eu-central-1-dev/infrastructure-config/patches/otel-collector*.yaml`
-- `clusters/aws-eu-central-1-internal/infrastructure-config/patches/otel-collector*.yaml`
+Update deployment configs that reference distribution versions:
 
 ```yaml
-- repository: ghcr.io/ollygarden/bonsai/ollygarden-collector
-  tag: "NEW_VERSION"  # Update both dev and internal
+# For each deployment config:
+- image: "ghcr.io/ollygarden/distributions/name:NEW_VERSION"
+```
+
+**Validation:**
+```bash
+# Verify configuration syntax
+helm lint .
+helm template . > /tmp/manifests.yaml  # Verify valid structure
 ```
 
 ---
 
-### Phase 3: Documentation (1-2 hours)
+### Phase 3: Documentation
 
-#### 3.1 Release Notes Document
+#### 3.1 Unified Release Documentation
 
-**File:** `docs/tulip-vYY.MM-release-notes.md`
+Create a single comprehensive release document that covers all aspects:
 
-**Contents:**
-- Component version (v0.X.Y)
-- What's new (added/removed/changed components)
-- Full component manifest table (extensions, receivers, exporters, processors, connectors, providers)
-- Configuration examples for new processors
-- Integration notes and gotchas
-
-**Reference:** Use prior LTS or quarterly release docs as template (e.g., `docs/tulip-lts-may2026-upgrade-plan.md`)
-
-#### 3.2 Upgrade Guide
-
-**File:** `docs/tulip-vYY.MM-upgrade-guide.md`
+**File:** `docs/tulip-vYY.MM-release.md`
 
 **Contents:**
-- Component health summary table
-- Critical issues + detailed mitigations
-- Breaking changes and migration path
-- Deployment checklist
-- Integration examples
+- **Release Summary**
+  - Version number and OTel component version
+  - Release date
+  - High-level summary of changes
 
-**Reference:** Use `docs/tulip-v26.08-upgrade-guide.md` as template
+- **Component Changes**
+  - What's new (added/removed/changed components)
+  - Full component manifest table (by category: extensions, receivers, exporters, processors, connectors, providers)
+  - Configuration examples for new components
 
-#### 3.3 Known Issues Document (if significant issues)
+- **Component Health & Issues**
+  - Component health summary table (stability, maintainers, open issues, risk level)
+  - CRITICAL/HIGH issues with details and mitigations
+  - Security advisories (if any)
+  - Performance considerations
+  - Breaking changes and migration paths
 
-**File:** `docs/tulip-vYY.MM-known-issues.md`
+- **Integration Guide**
+  - Configuration examples for key components
+  - Integration notes and gotchas
+  - Upstream compatibility information
 
-**Contents:**
-- Each issue: severity, component, status, symptoms, mitigation
-- Security advisories (if any)
-- Performance considerations
-- Monitoring/alerting recommendations
-- Timeline to upstream fixes
+- **Deployment Checklist**
+  - Pre-deployment validation steps
+  - Testing recommendations
+  - Monitoring and alerting setup
+  - Rollback plan
 
-**Reference:** Use `docs/tulip-v26.08-known-issues.md` as comprehensive template
+- **Monitoring & Alerting**
+  - Metrics to monitor
+  - Alert rules for critical conditions
+  - Timeline to upstream fixes (if applicable)
 
-#### 3.4 Update Component Tracker (if applicable)
+**Process:**
+- Reference prior release docs for structure and examples
+- Include component audit findings from Phase 1
+- Document all breaking changes
+- Provide concrete, tested configuration examples
 
-**File:** `docs/ollygarden-tracker.md`
+#### 3.2 Update Component Tracker (if applicable)
+
+**File:** `docs/component-tracker.md` (or equivalent)
 
 **Process:**
 - Regenerate tracker for new manifest version
 - Diff against prior tracker
-- Call out newly resolved issues in release notes
+- Call out newly resolved issues in release documentation
 
-**Reference:** `README.md` §Releases and `CLAUDE.md` §Adding or Updating Components explain the process
+**Reference:** `README.md` and `CLAUDE.md` for process details
 
 ---
 
-### Phase 4: Git & PR Workflow (30 minutes)
+### Phase 4: Git & PR Workflow
 
 #### 4.1 Create Release Branches & Commit
 
 ```bash
-# Tulip
+# Tulip repository
 cd tulip
-git checkout -b jonathan/tulip-release-vYY.MM.0
-git add distributions/tulip/manifest.yaml go.sum docs/tulip-vYY.MM-*.md
+git checkout -b jonathan/release-vYY.MM.0
+git add distributions/tulip/manifest.yaml go.sum docs/tulip-vYY.MM-release.md
 git commit -m "feat(tulip): release vYY.MM.0 with v0.X.Y components
 
-- Manifest: v0.X.Y components
-- Added: release-notes.md, upgrade-guide.md, known-issues.md (if applicable)
-- Component audit: N components audited, X CRITICAL/HIGH issues documented
+- Updated manifest to v0.X.Y components
+- Component audit: all components reviewed, X CRITICAL/HIGH issues documented
+- Comprehensive release documentation with health audit, mitigations, deployment checklist
 - Validation: build ✓, test ✓, goreleaser ✓
 
-Refs: E-XXXX (Linear card)"
+Refs: E-XXXX"
 
-# Bonsai
-cd bonsai
-git checkout -b jonathan/bonsai-sync-tulip-vYY.MM.0
-git add distributions/*/manifest.yaml
-git commit -m "chore(distributions): sync all to v0.X.Y for Tulip vYY.MM.0
+# Downstream repositories (if applicable)
+cd downstream-repo
+git checkout -b jonathan/sync-tulip-vYY.MM.0
+git add distributions/*/manifest.yaml [deployment-config-files]
+git commit -m "chore: sync component versions for Tulip vYY.MM.0
 
-- nike, jjteste, external-collector, ollygarden-collector: all → v0.X.Y
-- Aligns with Tulip vYY.MM.0 release
-- See tulip#PR_NUMBER for known issues and mitigations
+- Updated all distribution manifests to v0.X.Y
+- Updated deployment configurations to reference new versions
+- Aligns with upstream Tulip vYY.MM.0 release
 
+See tulip#PR_NUMBER for component health audit and known issues.
 Refs: E-XXXX"
 ```
 
-#### 4.2 Create Coordinated PRs
+#### 4.2 Create Pull Requests
 
 ```bash
-# Push both branches
-cd tulip && git push -u origin jonathan/tulip-release-vYY.MM.0
-cd bonsai && git push -u origin jonathan/bonsai-sync-tulip-vYY.MM.0
+# Push branches
+cd tulip && git push -u origin jonathan/release-vYY.MM.0
+# Push any downstream repos
 
-# Create Tulip PR (body includes summary of component audit, known issues, deployment checklist)
-cd tulip && gh pr create --title "feat(tulip): release vYY.MM.0 with v0.X.Y" --body "..."
+# Create PRs with comprehensive descriptions
+cd tulip && gh pr create --title "feat(tulip): release vYY.MM.0 with v0.X.Y" --body "
+## Summary
+[Release overview with component audit findings, key issues, deployment checklist]
 
-# Create Bonsai PR (cross-reference Tulip PR)
-cd bonsai && gh pr create --title "chore(distributions): sync all to v0.X.Y for Tulip vYY.MM.0" --body "..."
+## Changes
+- Manifest updated to v0.X.Y
+- Release documentation generated
+- Component health audit completed
+
+## Testing
+- Build: ✓
+- Tests: ✓
+- Goreleaser: ✓
+
+See docs/tulip-vYY.MM-release.md for full audit results, known issues, and mitigations.
+"
 ```
 
 #### 4.3 Update Linear Release Card
 
-**Card:** "tulip: release vYY.MM.0 and sync bonsai distributions"
+**Card:** Release card for this version
 
-**Add to description:**
+**Add to description/comments:**
 ```markdown
-## In Flight
+## Status
 
 **Tulip PR:** {github_url}
 - Manifest: v0.X.Y components
-- Release docs: release-notes.md, upgrade-guide.md, known-issues.md
-- Component audit results (N components, X critical issues)
+- Release documentation: docs/tulip-vYY.MM-release.md
+- Component audit: [summary of key findings]
 
-**Bonsai PR:** {github_url}
-- All distributions: v0.X.Y
+**Downstream PRs:** [links if applicable]
 
-**Critical findings:** [Link to known-issues.md or inline key issues]
+**Critical findings documented:** [reference to doc]
 ```
 
 ---
 
-### Phase 5: Code Review & Validation (1 hour)
+### Phase 5: Code Review & Validation
 
 #### 5.1 Review Component Audit Results
 
 **Checklist:**
-- [ ] All 29+ components listed
-- [ ] CRITICAL/HIGH issues documented
-- [ ] Security advisories flagged
-- [ ] Breaking changes identified
-- [ ] Migration guidance provided
+- [ ] All components in manifest listed
+- [ ] CRITICAL/HIGH issues documented with specifics
+- [ ] Security advisories flagged and assessed
+- [ ] Breaking changes identified with migration paths
+- [ ] Component health assessment reasonable (stability, maintainers, issues)
 
 #### 5.2 Review Documentation
 
-**Checklist for each doc:**
-- [ ] Accurate component counts and versions
-- [ ] Configuration examples tested (or note as template)
-- [ ] Deployment checklist is realistic
-- [ ] Known issues are specific (issue numbers, links)
-- [ ] Mitigations are actionable
-- [ ] Monitoring recommendations are specific
+**Checklist for release documentation:**
+- [ ] Component manifest accurate and complete
+- [ ] Health audit summary clear and actionable
+- [ ] Known issues include specific symptoms and mitigations
+- [ ] Breaking changes documented with migration examples
+- [ ] Configuration examples provided and (ideally) tested
+- [ ] Deployment checklist covers critical pre-deployment steps
+- [ ] Monitoring recommendations specific and measurable
 
-#### 5.3 Validate Test Results
+#### 5.3 Validate Build & Test Results
 
 **Checklist:**
 - [ ] `make build` passes
 - [ ] `make test` passes all pipelines
-- [ ] `make ensure-goreleaser-up-to-date` passes
-- [ ] All distribution manifests generate valid Go code
+- [ ] `make ensure-goreleaser-up-to-date` passes (if applicable)
+- [ ] All manifests generate valid output
 
 #### 5.4 Get Approvals
 
-- [ ] Code review: PR approved by team lead or maintainer
-- [ ] Linear card: Acceptance criteria reviewed, critical issues acknowledged
-- [ ] Deployment risk: Team concurs on risk level and mitigations
+- [ ] Code review: PR approved by maintainer
+- [ ] Documentation reviewed for accuracy and actionability
+- [ ] Release strategy and risk assessment approved
 
 ---
 
@@ -358,83 +358,57 @@ See docs/tulip-vYY.MM-known-issues.md for deployment checklist.
 
 ---
 
-### Phase 7: Downstream Sync (1 hour)
+### Phase 7: Deployment Synchronization (if applicable)
 
-#### 7.1 Create seedbed-charts PR
+#### 7.1 Update Deployment Repositories
+
+If you maintain separate deployment configurations (e.g., Kubernetes Helm charts, infrastructure-as-code):
 
 ```bash
-cd seedbed-charts
-git checkout -b jonathan/sync-tulip-vYY.MM.0
-# Update values files (external-collector, ollygarden-collector image versions)
-git add charts/observability/values*.yaml
-git commit -m "chore(observability): sync image versions to Tulip vYY.MM.0"
+# For each deployment repo:
+cd deployment-repo
+git checkout -b jonathan/sync-release-vYY.MM.0
+# Update all version references for new release
+git add [version/config files]
+git commit -m "chore: sync to Tulip vYY.MM.0
+
+Updated all distribution references to v0.X.Y
+See tulip#PR_NUMBER for release notes and audit.
+
+Refs: E-XXXX"
 gh pr create
 ```
 
-#### 7.2 Create seedbed PR
+#### 7.2 Merge & Deploy
 
-```bash
-cd seedbed
-git checkout -b jonathan/sync-tulip-vYY.MM.0-{dev,internal}
-# Update otel-collector patch files (image tags for dev/internal)
-git add clusters/aws-eu-central-1-dev/infrastructure-config/patches/otel-collector*.yaml
-git add clusters/aws-eu-central-1-internal/infrastructure-config/patches/otel-collector*.yaml
-git commit -m "chore(otel-collector): sync image versions to Tulip vYY.MM.0"
-gh pr create
-```
-
-#### 7.3 Merge & Deploy
-
-- [ ] seedbed-charts PR: Merge, Flux deploys to prod
-- [ ] seedbed PR: Merge, Flux deploys to dev/internal
-- [ ] Verify all environments running new version:
-  ```bash
-  kubectl get deployment otel-collector -A -o jsonpath='{.items[*].spec.template.spec.containers[0].image}'
-  ```
+- [ ] Merge deployment PRs in order of dependency
+- [ ] Verify deployment pipeline executes
+- [ ] Confirm services are running new version
 
 ---
 
-### Phase 8: Web Page Update (30 minutes)
+### Phase 8: Public Communication (if applicable)
 
-#### 8.1 Update ollygarden.com/tulip
+#### 8.1 Update Public Channels
 
-**Location:** ollygarden.com site repo (may be separate from tulip/bonsai)
-
-**Update:**
-- Version number (e.g., "Latest: vYY.MM.0")
-- Release date
-- Key features / what's new (2-3 bullet points)
-- Link to GitHub Release with full notes
-- Link to upgrade guide (docs/tulip-vYY.MM-upgrade-guide.md)
-
-**Example:**
-```markdown
-## Latest Release: vYY.MM.0
-
-Released: [DATE]
-
-**Latest OTel Collector:** v0.X.Y (updated [DATE])
-
-**New in this release:**
-- [Component] — brief description
-- [Feature] — brief description
-- [Improvement] — brief description
-
-[Read full release notes](https://github.com/ollygarden/tulip/releases/tag/vYY.MM.0)
-[Upgrade guide](https://github.com/ollygarden/tulip/blob/main/docs/tulip-vYY.MM-upgrade-guide.md)
-```
-
-#### 8.2 Create PR for Web Updates
+If maintaining a public website or documentation site:
 
 ```bash
-cd [ollygarden.com site repo]
-git checkout -b jonathan/tulip-vYY.MM.0-website
-# Update release info
-git add [files]
-git commit -m "chore(tulip): update to vYY.MM.0"
+# Update version information, release notes, upgrade guides
+cd public-docs-repo
+git checkout -b jonathan/release-vYY.MM.0
+# Update version references, release summary, upgrade instructions
+git add [docs/config files]
+git commit -m "chore: publish Tulip vYY.MM.0 release information"
 gh pr create
-# Merge when approved
 ```
+
+**Information to publish:**
+- Release version and OTel component version
+- Key changes and new features
+- Link to comprehensive release documentation
+- Upgrade instructions
+- Known issues and mitigations
 
 ---
 
@@ -442,18 +416,20 @@ gh pr create
 
 **Before declaring release complete:**
 
-- [ ] Tulip vYY.MM.0 tagged in GitHub
-- [ ] Binary published: `ghcr.io/ollygarden/tulip:vYY.MM.0`
-- [ ] GitHub Release published with notes
-- [ ] Release notes doc: `docs/tulip-vYY.MM-release-notes.md`
-- [ ] Upgrade guide doc: `docs/tulip-vYY.MM-upgrade-guide.md`
-- [ ] Known issues doc: `docs/tulip-vYY.MM-known-issues.md` (if applicable)
-- [ ] Bonsai distributions synced (all 4 at v0.X.Y)
-- [ ] seedbed-charts PR merged (prod image versions updated)
-- [ ] seedbed PRs merged (dev/internal image versions updated)
-- [ ] ollygarden.com/tulip website updated with new version
-- [ ] Linear card marked complete
-- [ ] Announcement sent (Slack, email, etc. if applicable)
+- [ ] Release tagged in repository
+- [ ] Artifacts published (binaries, container images, etc.)
+- [ ] GitHub Release created with comprehensive notes
+- [ ] Release documentation: `docs/tulip-vYY.MM-release.md`
+  - [ ] Component manifest complete and accurate
+  - [ ] Audit findings documented
+  - [ ] Breaking changes identified
+  - [ ] Known issues with mitigations
+  - [ ] Deployment checklist included
+- [ ] All downstream distribution PRs merged
+- [ ] Deployment PRs merged (if applicable)
+- [ ] Public communication updated (if applicable)
+- [ ] Linear card/issue marked complete
+- [ ] Stakeholders notified
 
 ---
 
@@ -522,18 +498,14 @@ docker tag ... gcr.io/my-registry/tulip:v0.151.0-backup
 
 ---
 
-## Time Estimate
+## Execution Notes
 
-**Full release workflow:** 4-6 hours
-- Audit: 1-2 hours
-- Updates: 1 hour
-- Docs: 1-2 hours
-- PR/review: 1 hour
-- Release: 30 min
-- Downstream sync: 1 hour
-- Web update: 30 min
-
-**Parallel tasks:** Audit and updates can run in parallel → reduces to 3-4 hours with concurrent work.
+- **Phase 1 (Component Audit):** Can run in parallel with other prep work
+- **Phase 2 (Version Updates):** Requires clean state; manifests must match across repositories
+- **Phase 3 (Documentation):** Should incorporate Phase 1 findings comprehensively in single document
+- **Phases 4-8:** Sequential; each depends on completion of previous phases
+- **Dependencies:** Downstream deployment PRs depend on upstream release PRs being merged
+- **Approval gates:** Code review and risk assessment required before Phase 6
 
 ---
 
