@@ -22,5 +22,12 @@ jobs:
           go-version: '1.26'
           check-latest: true
 
+      # Temporary remote-only diagnostic: capture the exact module metadata required
+      # after raising the Go directive, without running Go on the local worker.
+      - name: Diagnose module tidy diff
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
+
       - name: Verify
         run: make ci
