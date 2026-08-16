@@ -2,8 +2,6 @@ module github.com/ollygarden/tulip
 
 go 1.26.6
 
-toolchain go1.26.6
-
 require (
 	github.com/goreleaser/goreleaser-pro/v2 v2.15.4
 	gopkg.in/yaml.v3 v3.0.1
