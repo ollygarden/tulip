@@ -75,7 +75,7 @@ Want to add a component that isn't in the manifest?
 | **Container** | `docker pull cr.olly.garden/ollygarden/tulip/tulip:latest` |
 | **System packages** | deb, rpm, apk available in [Releases](https://github.com/ollygarden/tulip/releases) |
 | **Binary** | Download from [Releases](https://github.com/ollygarden/tulip/releases) (Linux/macOS, amd64/arm64) |
-| **Build from source** | `make build` (requires Go 1.22+) |
+| **Build from source** | `make build` (requires Go 1.26.6+) |
 
 ### Configuration
 
