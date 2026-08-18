@@ -15,7 +15,6 @@ This is a regular quarterly release (not LTS). It follows the standard quarterly
 **Type:** Processor (logs)  
 **Stability:** Alpha  
 **Source:** opentelemetry-collector-contrib v0.158.0
-**Codeowners:** MikeGoldsmith (emeritus: djaglowski)  
 
 **Purpose:** Collapses identical logs over a time window (`interval`), emitting a single record with a count attribute (configurable name, e.g., `dedup_count`). Reduces cardinality of identical log streams. Supports conditional deduplication (OTTL conditions), per-tenant metadata keys, and field inclusion/exclusion for flexible dedup key derivation.
 
@@ -139,5 +138,4 @@ service:
 
 ## References
 
-- **Evaluation & Integration Testing:** E-2660
 - **LogDedup Processor Upstream:** [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/logdedupprocessor)
