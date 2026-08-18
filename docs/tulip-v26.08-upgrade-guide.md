@@ -2,7 +2,7 @@
 
 **Version:** v26.08.0  
 **Release Date:** August 2026  
-**Component Base Version:** v0.151.0 (OTel Collector core/contrib)  
+**Component Base Version:** v0.158.0 (OTel Collector core/contrib)  
 **Previous LTS:** v26.05.1 (May 2026)
 
 ---
@@ -40,71 +40,71 @@ See **Integration Guide** (below) for configuration examples.
 | **Ready w/ Testing** | 7 | BETA with caution (load-test filestorage, auth extensions) |
 | **Requires Attention** | 2 | debugexporter (dev-only), spanprocessor (single maintainer) |
 
-### All Components (v0.151.0)
+### All Components (v0.158.0)
 
 #### Extensions (7)
 
-| Component | Stability | Maintainers | Status | Risk |
-|-----------|-----------|-------------|--------|------|
-| zpagesextension | STABLE | OTel Core Team | Production-ready | ✅ |
-| pprofextension | BETA | MovieStoreGuy | Actively maintained | ⚠️ |
-| basicauthextension | BETA | frzifus | **HIGH bus factor** | ⚠️ |
-| bearertokenauthextension | BETA | frzifus | **HIGH bus factor** | ⚠️ |
-| oauth2clientauthextension | BETA | pavankrish123 | Single owner | ⚠️ |
-| oidcauthextension | BETA | asweet-confluent | Single owner | ⚠️ |
-| filestorage | BETA | Multiple owners | Actively maintained, requires testing | ⚠️ |
+| Component | Stability | Status |
+|-----------|-----------|--------|
+| zpagesextension | STABLE | Production-ready |
+| pprofextension | BETA | Actively maintained |
+| basicauthextension | BETA | Limited maintainer coverage |
+| bearertokenauthextension | BETA | Limited maintainer coverage |
+| oauth2clientauthextension | BETA | Limited maintainer coverage |
+| oidcauthextension | BETA | Limited maintainer coverage |
+| filestorage | BETA | Actively maintained, requires testing |
 
 #### Receivers (4)
 
-| Component | Stability | Maintainers | Status | Risk |
-|-----------|-----------|-------------|--------|------|
-| nopreceiver | BETA | OTel Core Team | Production-ready | ✅ |
-| otlpreceiver | STABLE | OTel Core Team | Production-ready | ✅ |
-| hostmetricsreceiver | BETA | 3 owners | Actively maintained, load-test first | ⚠️ |
-| filelogreceiver | BETA | 4 owners | Actively maintained, load-test first | ⚠️ |
+| Component | Stability | Status |
+|-----------|-----------|--------|
+| nopreceiver | BETA | Production-ready |
+| otlpreceiver | STABLE | Production-ready |
+| hostmetricsreceiver | BETA | Actively maintained, load-test first |
+| filelogreceiver | BETA | Actively maintained, load-test first |
 
 #### Exporters (5)
 
-| Component | Stability | Maintainers | Status | Risk |
-|-----------|-----------|-------------|--------|------|
-| debugexporter | ALPHA | OTel Core Team | **DEV-ONLY** (not for production) | 🔴 |
-| nopexporter | BETA | OTel Core Team | Production-ready | ✅ |
-| otlpexporter | STABLE | OTel Core Team | Production-ready | ✅ |
-| otlphttpexporter | STABLE | OTel Core Team | Production-ready | ✅ |
-| fileexporter | ALPHA | paulojmdias | Actively maintained, test first | ⚠️ |
+| Component | Stability | Status |
+|-----------|-----------|--------|
+| debugexporter | ALPHA | **DEV-ONLY** (not for production) |
+| nopexporter | BETA | Production-ready |
+| otlpexporter | STABLE | Production-ready |
+| otlphttpexporter | STABLE | Production-ready |
+| fileexporter | ALPHA | Actively maintained, test first |
 
 #### Processors (8)
 
-| Component | Stability | Maintainers | Status | Risk |
-|-----------|-----------|-------------|--------|------|
-| attributesprocessor | BETA | boostchicken | Actively maintained | ⚠️ |
-| resourceprocessor | BETA | dmitryax | Actively maintained | ⚠️ |
-| spanprocessor | ALPHA | boostchicken | Single owner, high risk | 🔴 |
-| probabilisticsamplerprocessor | BETA/ALPHA | jmacd | Actively maintained | ⚠️ |
-| filterprocessor | ALPHA | 4 owners | Production-tested | ✅ |
-| transformprocessor | BETA | 4 owners | Actively maintained, well-supported | ✅ |
-| redactionprocessor | BETA | 4 owners | Actively maintained | ✅ |
-| logdedupprocessor | ALPHA | MikeGoldsmith | NEW, actively maintained | ⚠️ |
+| Component | Stability | Status |
+|-----------|-----------|--------|
+| attributesprocessor | BETA | Actively maintained |
+| resourceprocessor | BETA | Actively maintained |
+| spanprocessor | ALPHA | Limited maintainer coverage |
+| probabilisticsamplerprocessor | BETA/ALPHA | Actively maintained |
+| filterprocessor | ALPHA | Production-tested |
+| transformprocessor | BETA | Actively maintained, well-supported |
+| redactionprocessor | BETA | Actively maintained |
+| logdedupprocessor | ALPHA | NEW, actively maintained |
 
 #### Connectors (1)
 
-| Component | Stability | Maintainers | Status | Risk |
-|-----------|-----------|-------------|--------|------|
-| forwardconnector | BETA | OTel Core Team | Production-ready | ✅ |
+| Component | Stability | Status |
+|-----------|-----------|--------|
+| forwardconnector | BETA | Production-ready |
 
 #### Providers (3)
 
-| Component | Stability | Maintainers | Status | Risk |
-|-----------|-----------|-------------|--------|------|
-| envprovider | STABLE | OTel Core Team | Production-ready | ✅ |
-| fileprovider | STABLE | OTel Core Team | Production-ready | ✅ |
-| yamlprovider | STABLE | OTel Core Team | Production-ready | ✅ |
+| Component | Stability | Status |
+|-----------|-----------|--------|
+| envprovider | STABLE | Production-ready |
+| fileprovider | STABLE | Production-ready |
+| yamlprovider | STABLE | Production-ready |
 
 ---
 
 ## Critical Issues & Mitigations
 
-### 🔴 Issue #1: debugexporter Alpha Status
+### Issue #1: debugexporter Alpha Status
 
 **What:** debugexporter is explicitly for development/testing. Output format is unstable and changes without notice.
 
@@ -112,7 +112,7 @@ See **Integration Guide** (below) for configuration examples.
 
 **Mitigation:**
 ```yaml
-# ❌ WRONG (debug output changes format, breaks parsing)
+# AVOID (debug output changes format, breaks parsing)
 exporters:
   debug:
     loglevel: info
@@ -122,7 +122,7 @@ service:
     traces:
       exporters: [debug]  # For production monitoring
 
-# ✅ RIGHT (stable format, production-safe)
+# PREFERRED (stable format, production-safe)
 exporters:
   otlp:
     endpoint: otlp.example.com:4317
@@ -139,15 +139,15 @@ service:
 
 ---
 
-### 🔴 Issue #2: spanprocessor Single-Maintainer Risk
+### Issue #2: spanprocessor Limited Maintainer Coverage
 
-**What:** spanprocessor is ALPHA with one maintainer (boostchicken). API subject to breaking changes on minor version upgrades.
+**What:** spanprocessor is ALPHA with one maintainer. API subject to breaking changes on minor version upgrades.
 
 **Impact:** Breaking changes possible on every OTel update without notice. Single point of failure for maintenance.
 
 **Mitigation Option A: Use transformprocessor instead**
 ```yaml
-# ❌ RISKY (ALPHA, single maintainer)
+# USE WITH CAUTION (ALPHA, single maintainer)
 processors:
   span:
     name:
@@ -155,7 +155,7 @@ processors:
       key: custom_span_name
       value: "my-app"
 
-# ✅ SAFER (BETA, 4 maintainers, stable API)
+# PREFERRED (BETA, 4 maintainers, stable API)
 processors:
   transform:
     log_statements:
@@ -173,14 +173,15 @@ processors:
 
 ---
 
-### ⚠️ Issue #3: Authentication Extensions Bus Factor
+### Issue #3: Authentication Extensions Maintainer Coverage
 
-**What:** Four authentication extensions have **single maintainers**:
-- basicauthextension, bearertokenauthextension → @frzifus
-- oauth2clientauthextension → @pavankrish123
-- oidcauthextension → @asweet-confluent
+**What:** Four authentication extensions currently list a single maintainer:
+- basicauthextension
+- bearertokenauthextension
+- oauth2clientauthextension
+- oidcauthextension
 
-**Impact:** If a maintainer burns out, disappears, or leaves the project, auth stops being maintained. OTel community is actively seeking co-owners.
+**Impact:** Limited maintainer redundancy may slow reviews, fixes, and releases when the listed maintainer is unavailable. The OTel community is seeking additional co-owners.
 
 **Mitigation:**
 1. **Primary:** Implement authentication at reverse proxy layer (nginx/Envoy) as backup defense
@@ -191,14 +192,14 @@ processors:
 
 2. **Secondary:** Monitor maintainer activity weekly
    - Check GitHub commit history and issue response times
-   - Watch for maintainer burnout signals
+   - Track changes in ownership and review activity
    - Be ready to fork/maintain locally if needed
 
 3. **Community:** Contribute as secondary maintainer to one or more auth extensions
 
 ---
 
-### ⚠️ Issue #4: filestorage (New in LTS) Requires Testing
+### Issue #4: filestorage (New in LTS) Requires Testing
 
 **What:** filestorage extension (added in v26.05.0 LTS) provides persistent queue storage. BETA stability, multiple maintainers.
 
@@ -231,7 +232,7 @@ exporters:
 
 ---
 
-### ⚠️ Issue #5: ALPHA Processors Need Quarterly Testing
+### Issue #5: ALPHA Processors Need Quarterly Testing
 
 These components have ALPHA stability and APIs may change:
 - **logdedupprocessor** (NEW)
@@ -349,11 +350,11 @@ Add weekly check of GitHub issues and commit history for:
 
 ## Component Maintenance Status (as of Aug 10, 2026)
 
-✅ **All 27 components have commits in the last 7 days** — actively maintained.
+**All 27 components have commits in the last 7 days** — actively maintained.
 
 - **Core components** (10): Guaranteed maintained by OTel core team
-- **Well-maintained contrib** (12): BETA/STABLE, multi-owner, low risk
-- **Active but single-owner** (3): Alpha/BETA, maintained but bus factor risk
+- **Well-maintained contrib** (12): BETA/STABLE, multi-owner
+- **Active but single-owner** (3): Alpha/BETA, with limited maintainer redundancy
 - **Requires attention** (2): debugexporter (dev-only), spanprocessor (single owner, ALPHA)
 
 ---
@@ -369,7 +370,7 @@ Add weekly check of GitHub issues and commit history for:
 - Search by component name (e.g., "filterprocessor", "bearertokenauthextension")
 
 **For OTel community engagement:**
-- Become co-owner/maintainer of high-bus-factor components (auth extensions)
+- Become a co-owner or maintainer of components with limited maintainer coverage (auth extensions)
 - Contribute fixes or documentation improvements
 - Report security issues privately to OTel security team
 

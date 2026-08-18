@@ -2,7 +2,7 @@
 
 **Version:** v26.08.0  
 **Release Date:** August 2026  
-**Component Base Version:** v0.151.0
+**Component Base Version:** v0.158.0
 
 This is a regular quarterly release (not LTS). It follows the standard quarterly cadence: v26.05.0 (LTS) → v26.08.0 → v26.11.0 → v27.02.0 → ...
 
@@ -14,7 +14,7 @@ This is a regular quarterly release (not LTS). It follows the standard quarterly
 
 **Type:** Processor (logs)  
 **Stability:** Alpha  
-**Source:** opentelemetry-collector-contrib v0.151.0  
+**Source:** opentelemetry-collector-contrib v0.158.0
 **Codeowners:** MikeGoldsmith (emeritus: djaglowski)  
 
 **Purpose:** Collapses identical logs over a time window (`interval`), emitting a single record with a count attribute (configurable name, e.g., `dedup_count`). Reduces cardinality of identical log streams. Supports conditional deduplication (OTTL conditions), per-tenant metadata keys, and field inclusion/exclusion for flexible dedup key derivation.
@@ -49,59 +49,59 @@ processors:
 
 | Component | Stability | Version |
 |-----------|-----------|---------|
-| zpagesextension | stable | v0.151.0 |
-| pprofextension | beta | v0.151.0 |
-| basicauthextension | beta | v0.151.0 |
-| bearertokenauthextension | beta | v0.151.0 |
-| oauth2clientauthextension | beta | v0.151.0 |
-| oidcauthextension | beta | v0.151.0 |
-| filestorage | beta | v0.151.0 |
+| zpagesextension | stable | v0.158.0 |
+| pprofextension | beta | v0.158.0 |
+| basicauthextension | beta | v0.158.0 |
+| bearertokenauthextension | beta | v0.158.0 |
+| oauth2clientauthextension | beta | v0.158.0 |
+| oidcauthextension | beta | v0.158.0 |
+| filestorage | beta | v0.158.0 |
 
 ### Receivers (4)
 
 | Component | Stability | Version |
 |-----------|-----------|---------|
-| nopreceiver | stable | v0.151.0 |
-| otlpreceiver | stable | v0.151.0 |
-| hostmetricsreceiver | beta | v0.151.0 |
-| filelogreceiver | beta | v0.151.0 |
+| nopreceiver | stable | v0.158.0 |
+| otlpreceiver | stable | v0.158.0 |
+| hostmetricsreceiver | beta | v0.158.0 |
+| filelogreceiver | beta | v0.158.0 |
 
 ### Exporters (5)
 
 | Component | Stability | Version |
 |-----------|-----------|---------|
-| debugexporter | stable | v0.151.0 |
-| nopexporter | stable | v0.151.0 |
-| otlpexporter | stable | v0.151.0 |
-| otlphttpexporter | stable | v0.151.0 |
-| fileexporter | beta | v0.151.0 |
+| debugexporter | stable | v0.158.0 |
+| nopexporter | stable | v0.158.0 |
+| otlpexporter | stable | v0.158.0 |
+| otlphttpexporter | stable | v0.158.0 |
+| fileexporter | beta | v0.158.0 |
 
 ### Processors (8)
 
 | Component | Stability | Version | Note |
 |-----------|-----------|---------|------|
-| attributesprocessor | stable | v0.151.0 | |
-| resourceprocessor | stable | v0.151.0 | |
-| spanprocessor | stable | v0.151.0 | |
-| probabilisticsamplerprocessor | stable | v0.151.0 | |
-| filterprocessor | stable | v0.151.0 | |
-| transformprocessor | stable | v0.151.0 | |
-| redactionprocessor | stable | v0.151.0 | |
-| logdedupprocessor | alpha | v0.151.0 | NEW |
+| attributesprocessor | stable | v0.158.0 | |
+| resourceprocessor | stable | v0.158.0 | |
+| spanprocessor | stable | v0.158.0 | |
+| probabilisticsamplerprocessor | stable | v0.158.0 | |
+| filterprocessor | stable | v0.158.0 | |
+| transformprocessor | stable | v0.158.0 | |
+| redactionprocessor | stable | v0.158.0 | |
+| logdedupprocessor | alpha | v0.158.0 | NEW |
 
 ### Connectors (1)
 
 | Component | Stability | Version |
 |-----------|-----------|---------|
-| forwardconnector | stable | v0.151.0 |
+| forwardconnector | stable | v0.158.0 |
 
 ### Providers (3)
 
 | Component | Stability | Version |
 |-----------|-----------|---------|
-| envprovider | stable | v1.57.0 |
-| fileprovider | stable | v1.57.0 |
-| yamlprovider | stable | v1.57.0 |
+| envprovider | stable | v1.64.0 |
+| fileprovider | stable | v1.64.0 |
+| yamlprovider | stable | v1.64.0 |
 
 ---
 
