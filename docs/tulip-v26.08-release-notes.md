@@ -32,7 +32,7 @@ processors:
     interval: 5s
     log_count_attribute: dedup_count
     include_fields:
-      - attributes.log.record.template  # IMPORTANT: when chaining after drain
+      - attributes.log.record.template
     exclude_fields: []
     condition:
       match_type: regexp
@@ -109,9 +109,9 @@ processors:
 
 No breaking changes from v26.05.1 to v26.08.0. All existing pipelines remain compatible.
 
-### Optional: Enable log dedup + clustering
+### Optional: Enable log deduplication
 
-To start using the new processors, add them to a log pipeline:
+To start using the new processor, add it to a log pipeline:
 
 ```yaml
 receivers:
@@ -119,15 +119,9 @@ receivers:
     include_paths: [/var/log/*.log]
 
 processors:
-  drain:
-    drain:
-      algorithm: drain
-      tau: 0.5
   logdedup:
     interval: 5s
     log_count_attribute: dedup_count
-    include_fields:
-      - attributes.log.record.template
 
 exporters:
   otlp:
@@ -137,7 +131,7 @@ service:
   pipelines:
     logs:
       receivers: [filelog]
-      processors: [drain, logdedup]
+      processors: [logdedup]
       exporters: [otlp]
 ```
 
@@ -146,5 +140,4 @@ service:
 ## References
 
 - **Evaluation & Integration Testing:** E-2660
-- **Drain Processor Upstream:** [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/drainprocessor)
 - **LogDedup Processor Upstream:** [opentelemetry-collector-contrib](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/main/processor/logdedupprocessor)

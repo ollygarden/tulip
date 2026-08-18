@@ -48,10 +48,6 @@ exporters:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/exporter/fileexporter v0.158.0
 
 # Processors: Data transformation and enrichment
-# Note: batchprocessor was removed in the LTS May 2026 release.
-# It has been deprecated upstream (PR #15046) and has a known data loss bug (#12443).
-# Use exporter-level sending_queue + batch configuration instead.
-# See docs/tulip-lts-may2026-upgrade-plan.md for migration details.
 processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/attributesprocessor v0.158.0
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourceprocessor v0.158.0

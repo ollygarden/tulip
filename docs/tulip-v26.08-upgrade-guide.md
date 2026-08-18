@@ -234,7 +234,6 @@ exporters:
 ### ⚠️ Issue #5: ALPHA Processors Need Quarterly Testing
 
 These components have ALPHA stability and APIs may change:
-- **drainprocessor** (NEW)
 - **logdedupprocessor** (NEW)
 - **filterprocessor** (production-tested but ALPHA)
 - **probabilisticsamplerprocessor** (BETA/ALPHA boundary)
@@ -343,7 +342,7 @@ Add weekly check of GitHub issues and commit history for:
 **Post-upgrade:**
 
 - [ ] Monitor component metrics and error rates
-- [ ] Run drain/logdedup smoke tests if using new processors
+- [ ] Run logdedup smoke tests if using the new processor
 - [ ] Confirm auth extensions are working (bearer token, OIDC, OAuth)
 
 ---
@@ -367,7 +366,7 @@ Add weekly check of GitHub issues and commit history for:
 
 **For upstream component issues:**
 - Check https://github.com/open-telemetry/opentelemetry-collector-contrib/issues
-- Search by component name (e.g., "drainprocessor", "bearertokenauthextension")
+- Search by component name (e.g., "filterprocessor", "bearertokenauthextension")
 
 **For OTel community engagement:**
 - Become co-owner/maintainer of high-bus-factor components (auth extensions)
@@ -380,5 +379,5 @@ Add weekly check of GitHub issues and commit history for:
 
 - **v26.08.0 Release Notes:** `docs/tulip-v26.08-release-notes.md`
 - **LTS Precedent:** `docs/tulip-lts-may2026-upgrade-plan.md`
-- **E-2660:** Evaluation of drain/logdedup processors (integration testing, gotchas, maintainer analysis)
+- **E-2660:** Evaluation of logdedup processor (integration testing, gotchas, maintainer analysis)
 - **OTel Contrib Manifest:** https://github.com/open-telemetry/opentelemetry-collector-releases/tree/main/distributions/otelcol-contrib
